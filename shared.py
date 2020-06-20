@@ -1,12 +1,13 @@
-import pygame
-pygame.init()
 import os
 
-#Window settings, shared variables, backgrounds and music
+import pygame
 
+pygame.init()
+
+# Window settings, shared variables, backgrounds and music
 window_width = 960
 window_height = 640
-window = pygame.display.set_mode((window_width,window_height))
+window = pygame.display.set_mode((window_width, window_height))
 title = pygame.display.set_caption('Untitled Game')
 framerate = pygame.time.Clock()
 bigtext = pygame.font.SysFont('Arial', 50)
@@ -23,6 +24,5 @@ items_surface = pygame.Surface((64, 64))
 item_img = pygame.image.load(os.path.join('images', 'item.png')).convert_alpha()
 entrance_img = pygame.image.load(os.path.join('images', 'entrance.png')).convert_alpha()
 exit_img = pygame.image.load(os.path.join('images', 'exit.png')).convert_alpha()
-
 soundtrack = pygame.mixer.music
 track1 = os.path.join('music', 'track1.wav')

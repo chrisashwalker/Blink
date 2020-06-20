@@ -6,12 +6,10 @@ Battle system will be turn-based.
 The game will automatically save when a new area is entered.
 
 # Synopsis:
-
 A man wakes from a coma into a strange world with danger around every corner.
 To find safety, he must navigate through rough terrain and defend himself from harm, helping others along the way.
 
 # Intro:
-
 The main character is in a car accident, which leaves them in a coma for an indeterminate length of time.
 When he wakes in a hospital bed, there are no other patients or staff around.
 He leaves the building and there are no signs of life, with the area outside in disarray and all lines of communication are cut.
@@ -33,7 +31,7 @@ A blink is forewarned and the two of them hide themselves under covered stalls, 
 Hero hears a crash but is reluctant to leave hiding and investigate. The blink ends and Hero calls out for the other man, but finds his hiding place destroyed and no sight of the man; only his belongings left behind and covered in blood.
 Hero sees a helicopter fly overhead at some pace. He is unable to gain their attention and so he follows their flight path.
 Hero is almost attacked by a man who seems confused and shocked to see another person. The man has a sister who is very timid.
-They accompany eachother and reach the helicopter which has landed at a campsite.
+They accompany each other and reach the helicopter which has landed at a campsite.
 The crew explain that they have settled at a gated community, where survivors have gathered and follow strict regimes to prevent casualties. 
 Our group is invited to join. They take the helicopter, and a blink occurs mid-flight.
 
