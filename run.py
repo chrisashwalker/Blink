@@ -19,8 +19,9 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 pygame.quit()
         pressed_keys = pygame.key.get_pressed()
-        title_text = bigtext.render('Blink - Press Enter to play', True, WHITE)
-        window.blit(title_text, (150, 280))
+        # title_text = bigtext.render('Blink - Press Enter to play', True, WHITE)
+        # window.blit(title_text, (150, 280))
+        window.blit(title_img, (160, 113))
         pygame.display.flip()
         if pressed_keys[pygame.K_RETURN]:
             soundtrack.stop()
@@ -32,6 +33,7 @@ if __name__ == "__main__":
 
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
     soundtrack.load(map_tuple[map_id].map_music)
+    soundtrack.play(-1)
     defeated = []
     found_items_rects = []
 
@@ -173,7 +175,13 @@ if __name__ == "__main__":
         for op_test in drawn_opponents:
             if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
                 defeated.append(op_test)
+                soundtrack.stop()
+                soundtrack.load(track3)
+                soundtrack.play(-1)
                 arena(hero, op_test, player_inventory)
+                soundtrack.stop()
+                soundtrack.load(drawn_map.map_music)
+                soundtrack.play(-1)
 
         # Item pickup handling; tidy up and minimise this code
         if hero.rect.collidelist(drawn_map_items_rects) != -1 and \

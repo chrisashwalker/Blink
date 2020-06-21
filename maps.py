@@ -105,9 +105,9 @@ A..............
 ...O...........
 '''
 
-map1 = DrawMap(map1_layout, bg3, wall1, track1)
-map2 = DrawMap(map2_layout, bg3, wall1, track1)
-map3 = DrawMap(map3_layout, bg3, wall1, track1)
+map1 = DrawMap(map1_layout, bg3, wall1, track2)
+map2 = DrawMap(map2_layout, bg3, wall1, track2)
+map3 = DrawMap(map3_layout, bg3, wall1, track2)
 map_tuple = (map1, map2, map3)
 
 
