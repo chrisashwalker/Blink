@@ -2,13 +2,13 @@ from profiles import *
 
 pygame.init()
 
-map_ID = 0
+map_id = 0
 drawn_map = None
 drawn_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
 drawn_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
-drawn_wall_rects = list()
-drawn_opponents_rects = list()
-drawn_map_items_rects = list()
+drawn_wall_rects = []
+drawn_opponents_rects = []
+drawn_map_items_rects = []
 
 
 # Creates and draws the map rects
@@ -113,88 +113,22 @@ map_tuple = (map1, map2, map3)
 
 
 # Moving between maps
-def map_change_check(surface, player, map_id, current_map, current_map_entrance_rect, current_map_exit_rect, w_surface,
-                     found_items_rects, new_map_data):
+def map_change_check(player, current_map_id, current_map_entrance_rect, current_map_exit_rect):
     if current_map_entrance_rect.collidepoint(
             (int(player.x + (player.width / 2)), int(player.y + (player.height / 2)))):
-        current_map_music = current_map.map_music
-        map_id -= 1
-        player.x = 832
-        player.y = current_map_entrance_rect[1]
-        surface.blit(map_tuple[map_id].map_background, (0, 0))
-        surface.blit(player.load_img(), (player.x, player.y))
-        current_map = map_tuple[map_id]
-        current_wall_rects = current_map.wall_rects
-        drawn_map_entrance = current_map.map_entrance
-        drawn_map_exit = current_map.map_exit
-        if current_map.map_music != current_map_music:
-            soundtrack.load(current_map.map_music)
-        # soundtrack.play(-1)
-        if drawn_map_entrance is None:
-            current_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            current_map_entrance_rect = pygame.Rect(drawn_map_entrance[0], drawn_map_entrance[1], 64, 64)
-        if drawn_map_exit is None:
-            current_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            current_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
-        surface.blit(entrance_img, current_map_entrance_rect)
-        surface.blit(exit_img, current_map_exit_rect)
-        w_surface.blit(wall1, (0, 0))
-        for w_rect in current_wall_rects:
-            surface.blit(w_surface, w_rect)
-        current_opponents_rects = current_map.opponents_rects
-        for o_rect in current_opponents_rects:
-            surface.blit(enemy1.load_img(), (o_rect[0], o_rect[1]))
-        current_map_items_rects = current_map.map_items_rects
-        for i_rect in current_map_items_rects:
-            if i_rect not in found_items_rects:
-                surface.blit(item_img, i_rect)
-        pygame.display.flip()
-        new_map_data = (
-            map_id, current_map, current_map_entrance_rect, current_map_exit_rect, current_wall_rects,
-            current_opponents_rects,
-            current_map_items_rects)
-        return new_map_data
+        new_map_id = current_map_id - 1
+        player_x = 832
+        player_y = current_map_entrance_rect[1]
     elif current_map_exit_rect.collidepoint((int(player.x + (player.width / 2)), int(player.y + (player.height / 2)))):
-        current_map_music = current_map.map_music
-        map_id += 1
-        player.x = 64
-        player.y = current_map_exit_rect[1]
-        surface.blit(map_tuple[map_id].map_background, (0, 0))
-        surface.blit(player.load_img(), (player.x, player.y))
-        current_map = map_tuple[map_id]
-        current_wall_rects = current_map.wall_rects
-        drawn_map_entrance = current_map.map_entrance
-        drawn_map_exit = current_map.map_exit
-        if current_map.map_music != current_map_music:
-            soundtrack.load(current_map.map_music)
-        # soundtrack.play(-1)
-        if drawn_map_entrance is None:
-            current_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            current_map_entrance_rect = pygame.Rect(drawn_map_entrance[0], drawn_map_entrance[1], 64, 64)
-        if drawn_map_exit is None:
-            current_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            current_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
-        surface.blit(entrance_img, current_map_entrance_rect)
-        surface.blit(exit_img, current_map_exit_rect)
-        w_surface.blit(wall1, (0, 0))
-        for w_rect in current_wall_rects:
-            surface.blit(w_surface, w_rect)
-        current_opponents_rects = current_map.opponents_rects
-        for o_rect in current_opponents_rects:
-            surface.blit(enemy1.load_img(), (o_rect[0], o_rect[1]))
-        current_map_items_rects = current_map.map_items_rects
-        for i_rect in current_map_items_rects:
-            if i_rect not in found_items_rects:
-                surface.blit(item_img, i_rect)
-        pygame.display.flip()
-        new_map_data = (
-            map_id, current_map, current_map_entrance_rect, current_map_exit_rect, current_wall_rects,
-            current_opponents_rects,
-            current_map_items_rects)
-        return new_map_data
+        new_map_id = current_map_id + 1
+        player_x = 64
+        player_y = current_map_exit_rect[1]
     else:
-        return new_map_data
+        new_map_id = current_map_id
+        player_x = player.x
+        player_y = player.y
+    if map_tuple[current_map_id].map_music != map_tuple[new_map_id].map_music:
+        soundtrack.load(map_tuple[new_map_id].map_music)
+    # soundtrack.play(-1)
+    new_opponents_rects = map_tuple[new_map_id].opponents_rects
+    return int(new_map_id), player_x, player_y, list(new_opponents_rects)
