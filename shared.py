@@ -18,6 +18,8 @@ char_width = 64
 char_height = 64
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+tp_surface = pygame.Surface((960, 640))
+tp_surface.set_alpha(0)
 msg_surface = pygame.Surface((800, 300))
 wall_surface = pygame.Surface((64, 64))
 items_surface = pygame.Surface((64, 64))
