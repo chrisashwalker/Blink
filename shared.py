@@ -8,7 +8,7 @@ pygame.init()
 window_width = 960
 window_height = 640
 window = pygame.display.set_mode((window_width, window_height))
-title = pygame.display.set_caption('Untitled Game')
+title = pygame.display.set_caption('Blink')
 framerate = pygame.time.Clock()
 bigtext = pygame.font.SysFont('Arial', 50)
 text = pygame.font.SysFont('Arial', 20)

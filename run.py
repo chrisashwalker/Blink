@@ -20,7 +20,7 @@ if __name__ == "__main__":
                 pygame.quit()
         pressed_keys = pygame.key.get_pressed()
         framerate.tick(60)
-        title_text = bigtext.render('Untitled Game - Press Enter to play', True, WHITE)
+        title_text = bigtext.render('Blink - Press Enter to play', True, WHITE)
         title_text_rect = title_text.get_rect()
         window.blit(title_text, (150, 280))
         pygame.display.flip()
@@ -338,11 +338,16 @@ if __name__ == "__main__":
         # Update the display in each loop; try to make this more efficient
         msg_surface.fill(BLACK)
         window.blit(hero.load_img(), (hero.x, hero.y))
-        new_opponents_rects = []
+        new_opponents_rects = list()
         for o_rect in drawn_opponents_rects:
-            if o_rect not in defeated_rects:
-                window.blit(enemy1.load_img(), o_rect)
-        onscreen_chars_rects.extend(drawn_opponents_rects)
+            new_o_pos = chase(o_rect[0], o_rect[1], hero.x, hero.y, drawn_wall_rects)
+            new_o_rect = pygame.Rect(new_o_pos[0], new_o_pos[1], 64, 64)
+            new_opponents_rects.append(new_o_rect)
+        drawn_opponents_rects = new_opponents_rects
+        for o_rect in drawn_opponents_rects:
+            # if o_rect not in defeated_rects:
+            window.blit(enemy1.load_img(), o_rect)
+        onscreen_chars_rects.extend(new_opponents_rects)
         for i_rect in drawn_map_items_rects:
             if i_rect not in found_items_rects:
                 window.blit(item_img, i_rect)
