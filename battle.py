@@ -45,8 +45,8 @@ def arena(player, opponent, player_inventory):
                 pygame.quit()
         mouse_pos = pygame.mouse.get_pos()
         window.fill(BLACK)
-        window.blit(player.load_img(), PLAYER_POS)
-        window.blit(opponent.load_img(), OPPONENT_POS)
+        window.blit(player.surface, PLAYER_POS)
+        window.blit(opponent.surface, OPPONENT_POS)
         window.blit(attack_option, OPT1_POS)
         window.blit(use_item_option, OPT2_POS)
         window.blit(risky_attack_option, OPT3_POS)
@@ -163,7 +163,7 @@ def end_battle(winner):
     battle_result = 'You win!'
     window.fill(BLACK)
     msg = text.render(battle_result, True, WHITE)
-    window.blit(winner.load_img(), WINNER_POS)
+    window.blit(winner.surface, WINNER_POS)
     window.blit(msg, RESULT_MSG_POS)
     pygame.display.flip()
     loop = True

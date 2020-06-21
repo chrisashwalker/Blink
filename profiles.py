@@ -18,6 +18,8 @@ pygame.init()
 
 class Character:
     def __init__(self, name, base_hp, base_ap, st, bst, rest, speed, x, y):
+        # noinspection PyCallByClass,PyTypeChecker
+        pygame.sprite.Sprite.__init__(self)
         self.name = name
         self.base_hp = base_hp
         self.base_ap = base_ap
@@ -30,14 +32,12 @@ class Character:
         self.width = char_width
         self.height = char_height
         self.img = os.path.join('images', (self.name + '.png'))
-
-    def load_img(self):
-        return pygame.image.load(self.img).convert_alpha()
+        self.surface = pygame.image.load(self.img).convert_alpha()
+        self.rect = self.surface.get_rect()
 
 
 # Character declarations
 hero = Character('Hero', 10, 5, 2, 4, 1, 10, 0, 0)
-enemy1 = Character('Enemy1', 5, 5, 1, 2, 0, 5, -64, -64)
 
 
 def chase(opponent_x, opponent_y, player_x, player_y, walls):

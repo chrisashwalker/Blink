@@ -7,7 +7,6 @@ drawn_map = None
 drawn_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
 drawn_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
 drawn_wall_rects = []
-drawn_opponents_rects = []
 drawn_map_items_rects = []
 
 
@@ -21,8 +20,9 @@ class DrawMap:
         self.wall_rects = []
         map_items = []
         self.map_items_rects = []
-        opponents = []
-        self.opponents_rects = []
+        opponents_pos = []
+        self.opponents = []
+        o_id = -1
         map_lines = map_layout.splitlines()  # Splits the map multi-line string drawings into individual lines in a list
         self.map_entrance = None
         self.map_exit = None
@@ -36,7 +36,7 @@ class DrawMap:
                 if each_symbol == 'B':
                     self.map_exit = (symbol_index * tile_width, (line_index - 1) * tile_height)
                 if each_symbol == 'O':
-                    opponents.append((symbol_index, line_index))
+                    opponents_pos.append((symbol_index, line_index))
                 if each_symbol == 'I':
                     map_items.append((symbol_index, line_index))
         # Loop through the lists of walls and opponents to create their rects for pygame
@@ -52,12 +52,11 @@ class DrawMap:
             map_item_width = tile_width
             map_item_height = tile_height
             self.map_items_rects.append(pygame.Rect(map_item_x, map_item_y, map_item_width, map_item_height))
-        for opponent in opponents:
-            opponent_x = opponent[0] * char_width
-            opponent_y = (opponent[1] - 1) * char_height
-            opponent_width = char_width
-            opponent_height = char_height
-            self.opponents_rects.append(pygame.Rect(opponent_x, opponent_y, opponent_width, opponent_height))
+        for o_pos in opponents_pos:
+            o_id += 1
+            self.opponents.append(Character('Enemy1', 5, 5, 1, 2, 0, 5, -64, -64))
+            self.opponents[o_id].rect.x = o_pos[0] * char_width
+            self.opponents[o_id].rect.y = (o_pos[1] - 1) * char_height
 
 
 bg1 = pygame.image.load(os.path.join('images', 'bg1.png')).convert_alpha()
@@ -114,21 +113,20 @@ map_tuple = (map1, map2, map3)
 
 # Moving between maps
 def map_change_check(player, current_map_id, current_map_entrance_rect, current_map_exit_rect):
-    if current_map_entrance_rect.collidepoint(
-            (int(player.x + (player.width / 2)), int(player.y + (player.height / 2)))):
+    if current_map_entrance_rect.colliderect(hero.rect):
         new_map_id = current_map_id - 1
         player_x = 832
         player_y = current_map_entrance_rect[1]
-    elif current_map_exit_rect.collidepoint((int(player.x + (player.width / 2)), int(player.y + (player.height / 2)))):
+    elif current_map_exit_rect.colliderect(hero.rect):
         new_map_id = current_map_id + 1
         player_x = 64
         player_y = current_map_exit_rect[1]
     else:
         new_map_id = current_map_id
-        player_x = player.x
-        player_y = player.y
+        player_x = player.rect.x
+        player_y = player.rect.y
     if map_tuple[current_map_id].map_music != map_tuple[new_map_id].map_music:
         soundtrack.load(map_tuple[new_map_id].map_music)
     # soundtrack.play(-1)
-    new_opponents_rects = map_tuple[new_map_id].opponents_rects
-    return int(new_map_id), player_x, player_y, list(new_opponents_rects)
+    new_opponents = map_tuple[new_map_id].opponents
+    return int(new_map_id), player_x, player_y, list(new_opponents)
