@@ -19,11 +19,9 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 pygame.quit()
         pressed_keys = pygame.key.get_pressed()
-        # title_text = bigtext.render('Blink - Press Enter to play', True, WHITE)
-        # window.blit(title_text, (150, 280))
         window.blit(title_img, (160, 113))
         pygame.display.flip()
-        if pressed_keys[pygame.K_RETURN]:
+        if pressed_keys[pygame.K_RETURN] or pygame.mouse.get_pressed() == (1, 0, 0):
             soundtrack.stop()
             window.fill(BLACK)
             pygame.display.flip()
@@ -75,7 +73,9 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 run_game = False
 
-        pressed_keys = pygame.key.get_pressed()  # Check what key is pressed in the current iteration of the game loop
+        # Check what key is pressed in the current iteration of the game loop
+
+        pressed_keys = pygame.key.get_pressed()
         mouse_pos = pygame.mouse.get_pos()
 
         drawn_map = map_tuple[map_id]
@@ -92,10 +92,10 @@ if __name__ == "__main__":
             drawn_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
         drawn_map_items_rects = drawn_map.map_items_rects
 
-        # Update the display in each loop; try to make this more efficient
         display_update()
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
+
         if pressed_keys[pygame.K_LEFT]:
             while hero.speed > 0:
                 test_hero_x = hero.rect.x - hero.speed
@@ -123,9 +123,8 @@ if __name__ == "__main__":
                 if hero.rect.x + hero.width + hero.speed <= window_width and wall_collision_index == -1:
                     hero.rect.x += hero.speed
                     old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(hero, map_id,
-                                                                                       drawn_map_entrance_rect,
-                                                                                       drawn_map_exit_rect)
+                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
+                        hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
                     if map_id != old_map_id:
                         drawn_opponents = new_opponents
                         display_update()
@@ -142,9 +141,8 @@ if __name__ == "__main__":
                 if hero.rect.y - hero.speed >= 0 and wall_collision_index == -1:
                     hero.rect.y -= hero.speed
                     old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(hero, map_id,
-                                                                                       drawn_map_entrance_rect,
-                                                                                       drawn_map_exit_rect)
+                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
+                        hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
                     if map_id != old_map_id:
                         drawn_opponents = new_opponents
                         display_update()
@@ -161,8 +159,8 @@ if __name__ == "__main__":
                 if hero.rect.y + hero.height + hero.speed <= window_height and wall_collision_index == -1:
                     hero.rect.y += hero.speed
                     old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = \
-                        map_change_check(hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
+                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
+                            hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
                     if map_id != old_map_id:
                         drawn_opponents = new_opponents
                         display_update()
@@ -170,7 +168,7 @@ if __name__ == "__main__":
                 else:
                     hero.speed -= 1
 
-        # Update rects based on character positions, check for collisions and update parts of screen with changes
+        # Update rects based on character positions, check for collisions and start battle
 
         for op_test in drawn_opponents:
             if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
@@ -178,15 +176,18 @@ if __name__ == "__main__":
                 soundtrack.stop()
                 soundtrack.load(track3)
                 soundtrack.play(-1)
-                arena(hero, op_test, player_inventory)
+                run_game = arena(hero, op_test, player_inventory)
                 soundtrack.stop()
                 soundtrack.load(drawn_map.map_music)
                 soundtrack.play(-1)
 
-        # Item pickup handling; tidy up and minimise this code
+        # Item pickup handling
+
         if hero.rect.collidelist(drawn_map_items_rects) != -1 and \
                 hero.rect.collidelist(found_items_rects) == -1:
             wait = True
+            if player_inventory.item_capacity >= 6:
+                items_tuple.remove(new_backpack)
             random_item_index = random.randint(0, len(items_tuple) - 1)
             random_item = items_tuple[random_item_index]
             weapon_count = 0
@@ -206,7 +207,7 @@ if __name__ == "__main__":
                         wait = False
                 mouse_pos = pygame.mouse.get_pos()
                 if len(player_inventory.items) < player_inventory.item_capacity and \
-                        random_item.item_type != 'Weapon upgrade':
+                        random_item.item_type != 'Weapon upgrade' and random_item.item_name != 'New Backpack':
                     found_item = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
                         random_item.item_power) + '). Add it to your inventory?', True, WHITE)
                     found_item_rect = found_item.get_rect(topleft=(50, 40))
@@ -239,8 +240,8 @@ if __name__ == "__main__":
                         wait = False
                 elif random_item.item_type == 'Weapon upgrade':
                     found_item = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
-                        random_item.item_power) + '). Use it as your main weapon? Current weapon power lvl: ' + str(
-                        weapon_power), True, WHITE)
+                        random_item.item_power) + '). Use it as your main weapon? Current weapon power lvl: ' +
+                                             str(player_inventory.held_weapon.item_power), True, WHITE)
                     found_item_rect = found_item.get_rect(topleft=(50, 40))
                     msg_surface.blit(found_item, (50, 40))
                     add_option = text.render('Use it', True, WHITE)
@@ -255,9 +256,9 @@ if __name__ == "__main__":
                     if add_option_rect.collidepoint(mouse_pos[0] - 80,
                                                     mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (1, 0, 0):
                         if random_item.item_type == 'Weapon upgrade' and replace_weapon is True:
-                            player_inventory.replace_item(random_item, player_inventory.items[0])
+                            player_inventory.held_weapon = random_item
                         else:
-                            player_inventory.add_item(random_item)
+                            player_inventory.held_weapon = random_item
                         found_items_rect_index = hero.rect.collidelist(
                             drawn_map_items_rects)
                         found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
@@ -268,6 +269,18 @@ if __name__ == "__main__":
                         found_items_rect_index = hero.rect.collidelist(
                             drawn_map_items_rects)
                         found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
+                        wait = False
+                elif random_item.item_name == 'New Backpack':
+                    found_item = text.render(
+                        'You found a ' + random_item.item_name + '. ' + random_item.item_type, True, WHITE)
+                    found_item_rect = found_item.get_rect(topleft=(50, 40))
+                    msg_surface.blit(found_item, (50, 40))
+                    pygame.display.update(msg_surface_rect)
+                    player_inventory.item_capacity += 1
+                    found_items_rect_index = hero.rect.collidelist(
+                        drawn_map_items_rects)
+                    found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
+                    if pygame.mouse.get_pressed() == (1, 0, 0):
                         wait = False
                 else:
                     found_item = text.render('You found a ' + random_item.item_name + ' (Power: ' + str(

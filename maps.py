@@ -1,6 +1,5 @@
+import random
 from profiles import *
-
-pygame.init()
 
 map_id = 0
 drawn_map = None
@@ -11,6 +10,7 @@ drawn_map_items_rects = []
 
 
 # Creates and draws the map rects
+
 class DrawMap:
     def __init__(self, map_layout, map_background, wall_img, map_music):
         self.map_background = map_background
@@ -53,8 +53,9 @@ class DrawMap:
             map_item_height = tile_height
             self.map_items_rects.append(pygame.Rect(map_item_x, map_item_y, map_item_width, map_item_height))
         for o_pos in opponents_pos:
+            random_op_no = random.randint(1, 3)
             o_id += 1
-            self.opponents.append(Character('Enemy1', 5, 5, 1, 2, 0, 5, -64, -64))
+            self.opponents.append(Character('Enemy' + str(random_op_no), 5, 1, 5, -64, -64))
             self.opponents[o_id].rect.x = o_pos[0] * char_width
             self.opponents[o_id].rect.y = (o_pos[1] - 1) * char_height
 
@@ -66,6 +67,7 @@ bg3 = pygame.image.load(os.path.join('images', 'bg3.png')).convert_alpha()
 wall1 = pygame.image.load(os.path.join('images', 'wall.png')).convert_alpha()
 
 # Map layouts; 'A' symbol is the entrance, 'B' is the exit, 'I' are items, 'O' are opponents and 'X' are walls
+
 map1_layout = '''
 .X.............
 .X......X......
@@ -112,6 +114,7 @@ map_tuple = (map1, map2, map3)
 
 
 # Moving between maps
+
 def map_change_check(player, current_map_id, current_map_entrance_rect, current_map_exit_rect):
     if current_map_entrance_rect.colliderect(hero.rect):
         new_map_id = current_map_id - 1
@@ -126,7 +129,8 @@ def map_change_check(player, current_map_id, current_map_entrance_rect, current_
         player_x = player.rect.x
         player_y = player.rect.y
     if map_tuple[current_map_id].map_music != map_tuple[new_map_id].map_music:
+        soundtrack.stop()
         soundtrack.load(map_tuple[new_map_id].map_music)
-    # soundtrack.play(-1)
+        soundtrack.play(-1)
     new_opponents = map_tuple[new_map_id].opponents
     return int(new_map_id), player_x, player_y, list(new_opponents)

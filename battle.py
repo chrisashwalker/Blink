@@ -1,37 +1,32 @@
 import random
 import time
 
-from inventory import *
-from shared import text, WHITE, BLACK, window
-
-pygame.init()
+from shared import *
 
 OPT1_POS = (420, 440)
 OPT2_POS = (420, 500)
 OPT3_POS = (420, 540)
 PLAYER_POS = (380, 260)
 OPPONENT_POS = (580, 260)
-HUD_POS = (420, 160)
-ACTION_MSG_POS = (420, 440)
 WINNER_POS = (420, 240)
 RESULT_MSG_POS = (420, 160)
 
 
-# Status object
+# Status object:
 # health points
 # ability points
 # restoration status
+
 class Status:
-    def __init__(self, hp, ap, rest_status):
+    def __init__(self, hp):
         self.hp = hp
-        self.ap = ap
-        self.rest_status = rest_status
 
 
 # Battle arena function - process a battle between the hero and an opponent
+
 def arena(player, opponent, player_inventory):
-    player_status = Status(player.base_hp, player.base_ap, player.rest)
-    opponent_status = Status(opponent.base_hp, opponent.base_ap, opponent.rest)
+    player_status = Status(player.base_hp)
+    opponent_status = Status(opponent.base_hp)
     attack_option = text.render('Attack', True, WHITE)
     use_item_option = text.render('Use an item', True, WHITE)
     attack_rect = attack_option.get_rect(topleft=OPT1_POS)
@@ -85,7 +80,6 @@ def arena(player, opponent, player_inventory):
                             pygame.quit()
                     pressed_keys = pygame.key.get_pressed()
 
-                    # Add more with inventory upgrades
                     if pressed_keys[pygame.K_0]:
                         i = 1
                     if pressed_keys[pygame.K_1]:
@@ -101,12 +95,16 @@ def arena(player, opponent, player_inventory):
                         player_inventory.remove_item(player_inventory.items[2])
                         i = 1
                     if pressed_keys[pygame.K_4]:
+                        player_inventory.items[3].use_item(player_status, opponent_status)
+                        player_inventory.remove_item(player_inventory.items[3])
                         i = 1
                     if pressed_keys[pygame.K_5]:
+                        player_inventory.items[4].use_item(player_status, opponent_status)
+                        player_inventory.remove_item(player_inventory.items[4])
                         i = 1
                     if pressed_keys[pygame.K_6]:
-                        i = 1
-                    if pressed_keys[pygame.K_7]:
+                        player_inventory.items[5].use_item(player_status, opponent_status)
+                        player_inventory.remove_item(player_inventory.items[5])
                         i = 1
                 window.fill(BLACK, use_item_rect)
 
@@ -120,21 +118,23 @@ def arena(player, opponent, player_inventory):
 
     # The loop - and therefore, battle - ends when either the player or opponent has 0 HP
     if player_status.hp <= 0:
-        end_battle(opponent)
+        end_battle(opponent, player_status)
     else:
-        end_battle(player)
+        end_battle(player, player_status)
+    if player_status.hp > 0:
+        return True
+    else:
+        return False
 
 
-# Action function - process attacks and display the effects; functionality to be expanded with battle options
+# Action function - process attacks and display the effects
+
 def action(source, target, target_stat, attack_rect, use_item_rect, risky_attack_rect, risk, player,
            player_inventory):
     if source == player:
-        weapon_count = 0
         weapon_power = 0
-        for each_item in player_inventory.items:
-            if each_item.item_type == 'Weapon upgrade':
-                weapon_count += 1
-                weapon_power = each_item.item_power
+        if player_inventory.held_weapon is not None:
+            weapon_power = player_inventory.held_weapon.item_power
         if risk:
             damage = (source.st + weapon_power) * random.randint(0, 3)
         else:
@@ -145,28 +145,28 @@ def action(source, target, target_stat, attack_rect, use_item_rect, risky_attack
         else:
             damage = source.st
     target_stat.hp -= damage
-    action_msg = target.name + ' loses ' + str(damage) + ' health'
     window.fill(BLACK, attack_rect)
     window.fill(BLACK, use_item_rect)
     window.fill(BLACK, risky_attack_rect)
-    # window.blit(hud, HUD_POS)
-    msg = text.render(action_msg, True, WHITE)
-    # window.blit(msg, ACTION_MSG_POS)
     pygame.display.flip()
-    # time.sleep(1.5)
     time.sleep(0.1)
-    window.fill(BLACK, msg.get_rect(topleft=ACTION_MSG_POS))
 
 
 # End of battle function - congratulate or commiserate player before returning back to the main game
-def end_battle(winner):
-    battle_result = 'You win!'
+
+def end_battle(winner, player_stat):
+    if player_stat.hp > 0:
+        battle_result = 'You win!'
+    else:
+        battle_result = 'Game over.'
+
     window.fill(BLACK)
     msg = text.render(battle_result, True, WHITE)
     window.blit(winner.surface, WINNER_POS)
     window.blit(msg, RESULT_MSG_POS)
     pygame.display.flip()
     loop = True
+    time.sleep(0.1)
     while loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

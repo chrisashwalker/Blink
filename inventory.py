@@ -1,7 +1,3 @@
-import pygame
-
-pygame.init()
-
 
 class Item:
     def __init__(self, item_name, item_type, item_power):
@@ -37,4 +33,5 @@ class Backpack:
 potion = Item('Potion', 'Use once to boost HP during battle', 3)
 rock = Item('Rock', 'Use once to damage the opponent during battle', 2)
 pin = Item('Rolling Pin', 'Weapon upgrade', 1)
-items_tuple = (potion, rock, pin)
+new_backpack = Item('New Backpack', 'Increased storage capacity by 1', 0)
+items_tuple = (potion, rock, pin, new_backpack)
