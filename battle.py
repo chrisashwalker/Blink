@@ -52,10 +52,10 @@ def arena(player, opponent, player_inventory):
         # Process actions where mouse clicks on rects spanning the rendered text. Player  goes first, then opponent
         if attack_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             risk = False
-            action(player, opponent, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
+            action(player, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
                    risk, player, player_inventory)
             if player_status.hp > 0 and opponent_status.hp > 0:
-                action(opponent, player, player_status, attack_rect, use_item_rect, risky_attack_rect,
+                action(opponent, player_status, attack_rect, use_item_rect, risky_attack_rect,
                        risk, player, player_inventory)
 
         if use_item_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
@@ -110,10 +110,10 @@ def arena(player, opponent, player_inventory):
 
         if risky_attack_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             risk = True
-            action(player, opponent, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
+            action(player, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
                    risk, player, player_inventory)
             if player_status.hp > 0 and opponent_status.hp > 0:
-                action(opponent, player, player_status, attack_rect, use_item_rect, risky_attack_rect,
+                action(opponent, player_status, attack_rect, use_item_rect, risky_attack_rect,
                        risk, player, player_inventory)
 
     # The loop - and therefore, battle - ends when either the player or opponent has 0 HP
@@ -129,7 +129,7 @@ def arena(player, opponent, player_inventory):
 
 # Action function - process attacks and display the effects
 
-def action(source, target, target_stat, attack_rect, use_item_rect, risky_attack_rect, risk, player,
+def action(source, target_stat, attack_rect, use_item_rect, risky_attack_rect, risk, player,
            player_inventory):
     if source == player:
         weapon_power = 0

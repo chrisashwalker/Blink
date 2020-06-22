@@ -11,6 +11,7 @@ from shared import *
 
 class Character:
     def __init__(self, name, base_hp, st, speed, x, y):
+        # noinspection PyCallByClass,PyTypeChecker
         pygame.sprite.Sprite.__init__(self)
         self.name = name
         self.base_hp = base_hp

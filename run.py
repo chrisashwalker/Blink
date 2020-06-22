@@ -1,6 +1,5 @@
 # Main game program
 
-import random
 
 from battle import arena
 from inventory import *
@@ -37,6 +36,7 @@ if __name__ == "__main__":
 
     drawn_map = map_tuple[map_id]
     drawn_opponents = drawn_map.opponents
+    wall_collision_index = -1
 
     player_inventory = Backpack(None, 3)
 
@@ -96,77 +96,47 @@ if __name__ == "__main__":
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
 
-        if pressed_keys[pygame.K_LEFT]:
+        if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or \
+                pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]:
             while hero.speed > 0:
-                test_hero_x = hero.rect.x - hero.speed
-                test_hero_y = hero.rect.y
-                wall_collision_index = pygame.Rect(test_hero_x, test_hero_y, hero.width, hero.height).collidelist(
-                    drawn_wall_rects)
-                if hero.rect.x - hero.speed >= 0 and wall_collision_index == -1:
-                    hero.rect.x -= hero.speed
-                    old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
-                        hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
-                    if map_id != old_map_id:
-                        drawn_opponents = new_opponents
-                        display_update()
-                    break
+                if pressed_keys[pygame.K_LEFT]:
+                    test_hero_x = hero.rect.x - hero.speed
+                    test_hero_y = hero.rect.y
+                if pressed_keys[pygame.K_RIGHT]:
+                    test_hero_x = hero.rect.x + hero.speed
+                    test_hero_y = hero.rect.y
+                if pressed_keys[pygame.K_UP]:
+                    test_hero_x = hero.rect.x
+                    test_hero_y = hero.rect.y - hero.speed
+                if pressed_keys[pygame.K_DOWN]:
+                    test_hero_x = hero.rect.x
+                    test_hero_y = hero.rect.y + hero.speed
+                wall_collision_index = pygame.Rect(
+                    test_hero_x, test_hero_y, hero.width, hero.height).collidelist(drawn_wall_rects)
+                if wall_collision_index == -1:
+                    if pressed_keys[pygame.K_LEFT] and hero.rect.x - hero.speed >= 0:
+                        hero.rect.x -= hero.speed
+                        break
+                    elif pressed_keys[pygame.K_RIGHT] and hero.rect.x + hero.width + hero.speed <= window_width:
+                        hero.rect.x += hero.speed
+                        break
+                    elif pressed_keys[pygame.K_UP] and hero.rect.y - hero.speed >= 0:
+                        hero.rect.y -= hero.speed
+                        break
+                    elif pressed_keys[pygame.K_DOWN] and hero.rect.y + hero.height + hero.speed <= window_height:
+                        hero.rect.y += hero.speed
+                        break
+                    else:
+                        hero.speed -= 1
                 else:
                     hero.speed -= 1
+            old_map_id = map_id
+            map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
+                hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
+            if map_id != old_map_id:
+                drawn_opponents = new_opponents
+                display_update()
 
-        if pressed_keys[pygame.K_RIGHT]:
-            while hero.speed > 0:
-                test_hero_x = hero.rect.x + hero.speed
-                test_hero_y = hero.rect.y
-                wall_collision_index = pygame.Rect(test_hero_x, test_hero_y, hero.width, hero.height).collidelist(
-                    drawn_wall_rects)
-                if hero.rect.x + hero.width + hero.speed <= window_width and wall_collision_index == -1:
-                    hero.rect.x += hero.speed
-                    old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
-                        hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
-                    if map_id != old_map_id:
-                        drawn_opponents = new_opponents
-                        display_update()
-                    break
-                else:
-                    hero.speed -= 1
-
-        if pressed_keys[pygame.K_UP]:
-            while hero.speed > 0:
-                test_hero_x = hero.rect.x
-                test_hero_y = hero.rect.y - hero.speed
-                wall_collision_index = pygame.Rect(test_hero_x, test_hero_y, hero.width, hero.height).collidelist(
-                    drawn_wall_rects)
-                if hero.rect.y - hero.speed >= 0 and wall_collision_index == -1:
-                    hero.rect.y -= hero.speed
-                    old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
-                        hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
-                    if map_id != old_map_id:
-                        drawn_opponents = new_opponents
-                        display_update()
-                    break
-                else:
-                    hero.speed -= 1
-
-        if pressed_keys[pygame.K_DOWN]:
-            while hero.speed > 0:
-                test_hero_x = hero.rect.x
-                test_hero_y = hero.rect.y + hero.speed
-                wall_collision_index = pygame.Rect(test_hero_x, test_hero_y, hero.width, hero.height).collidelist(
-                    drawn_wall_rects)
-                if hero.rect.y + hero.height + hero.speed <= window_height and wall_collision_index == -1:
-                    hero.rect.y += hero.speed
-                    old_map_id = map_id
-                    map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
-                            hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
-                    if map_id != old_map_id:
-                        drawn_opponents = new_opponents
-                        display_update()
-                    break
-                else:
-                    hero.speed -= 1
 
         # Update rects based on character positions, check for collisions and start battle
 
