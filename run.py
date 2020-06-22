@@ -37,6 +37,8 @@ if __name__ == "__main__":
     drawn_map = map_tuple[map_id]
     drawn_opponents = drawn_map.opponents
     wall_collision_index = -1
+    test_hero_x = 0
+    test_hero_y = 0
 
     player_inventory = Backpack(None, 3)
 
@@ -50,9 +52,10 @@ if __name__ == "__main__":
         wall_surface.blit(wall1, (0, 0))
         for w_rect in drawn_wall_rects:
             window.blit(wall_surface, w_rect)
-        for i_rect in drawn_map_items_rects:
-            if i_rect not in found_items_rects:
-                window.blit(item_img, i_rect)
+        for item in drawn_map_items:
+            item_rect = pygame.Rect(item, (64, 64))
+            if item_rect not in found_items_rects:
+                window.blit(item_img, item_rect)
         window.blit(hero.surface, hero.rect)
         for op in drawn_opponents:
             new_o_pos = chase(op.rect[0], op.rect[1], hero.rect.x, hero.rect.y, drawn_wall_rects)
@@ -90,7 +93,7 @@ if __name__ == "__main__":
             drawn_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
         else:
             drawn_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
-        drawn_map_items_rects = drawn_map.map_items_rects
+        drawn_map_items = drawn_map.map_items_pos
 
         display_update()
 
@@ -137,7 +140,6 @@ if __name__ == "__main__":
                 drawn_opponents = new_opponents
                 display_update()
 
-
         # Update rects based on character positions, check for collisions and start battle
 
         for op_test in drawn_opponents:
@@ -153,156 +155,131 @@ if __name__ == "__main__":
 
         # Item pickup handling
 
-        if hero.rect.collidelist(drawn_map_items_rects) != -1 and \
-                hero.rect.collidelist(found_items_rects) == -1:
-            wait = True
-            if player_inventory.item_capacity >= 6:
-                items_tuple.remove(new_backpack)
-            random_item_index = random.randint(0, len(items_tuple) - 1)
-            random_item = items_tuple[random_item_index]
-            weapon_count = 0
-            weapon_power = 0
-            for each_item in player_inventory.items:
-                if each_item.item_type == 'Weapon upgrade':
-                    weapon_power = each_item.item_power
-                    weapon_count += 1
-            if weapon_count > 0:
-                replace_weapon = True
-            else:
-                replace_weapon = False
-            while wait:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        run_game = False
-                        wait = False
-                mouse_pos = pygame.mouse.get_pos()
-                if len(player_inventory.items) < player_inventory.item_capacity and \
-                        random_item.item_type != 'Weapon upgrade' and random_item.item_name != 'New Backpack':
-                    found_item = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
-                        random_item.item_power) + '). Add it to your inventory?', True, WHITE)
-                    found_item_rect = found_item.get_rect(topleft=(50, 40))
-                    msg_surface.blit(found_item, (50, 40))
-                    add_option = text.render('Add it', True, WHITE)
-                    add_option_rect = add_option.get_rect(topleft=(50, 80))
-                    msg_surface.blit(add_option, (50, 80))
-                    discard_option = text.render('Discard it', True, WHITE)
-                    discard_option_rect = discard_option.get_rect(topleft=(50, 120))
-                    msg_surface.blit(discard_option, (50, 120))
-                    msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
-                    window.blit(msg_surface, (80, 170))
-                    pygame.display.update(msg_surface_rect)
-                    if add_option_rect.collidepoint(mouse_pos[0] - 80,
-                                                    mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (1, 0, 0):
-                        if random_item.item_type == 'Weapon upgrade' and replace_weapon is True:
-                            player_inventory.replace_item(random_item, player_inventory.items[0])
+        i0 = min(0, len(player_inventory.items) - 1)
+        i1 = min(1, len(player_inventory.items) - 1)
+        i2 = min(2, len(player_inventory.items) - 1)
+        i3 = min(3, len(player_inventory.items) - 1)
+        i4 = min(4, len(player_inventory.items) - 1)
+        i5 = min(5, len(player_inventory.items) - 1)
+        backpack_add_once = True
+
+        for item_test in drawn_map_items:
+            item_test_rect = pygame.Rect(item_test, (64, 64))
+            if hero.rect.colliderect(item_test_rect) and item_test_rect not in found_items_rects:
+                item_wait = True
+                if player_inventory.item_capacity >= 6 and new_backpack in items_list:
+                    items_list.remove(new_backpack)
+                random_item_index = random.randint(0, len(items_list) - 1)
+                random_item = items_list[random_item_index]
+                while item_wait:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            run_game = False
+                            item_wait = False
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    if random_item.item_name == 'New Backpack':
+                        if backpack_add_once:
+                            player_inventory.item_capacity += 1
+                            backpack_add_once = False
+                        found_item_text = text.render(
+                            'You found a ' + random_item.item_name + '. ' + random_item.item_type, True, WHITE)
+
+                    elif random_item.item_type == 'Weapon upgrade':
+                        if player_inventory.held_weapon is not None:
+                            weapon_power = player_inventory.held_weapon.item_power
                         else:
+                            weapon_power = 0
+                        found_item_text = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
+                            random_item.item_power) + '). Use it as your main weapon? Current weapon power lvl: ' +
+                                                      str(weapon_power), True, WHITE)
+                        add_option = text.render('Use it', True, WHITE)
+                        add_option_rect = add_option.get_rect(topleft=(50, 80))
+                        msg_surface.blit(add_option, (50, 80))
+                        discard_option = text.render('Discard it', True, WHITE)
+                        discard_option_rect = discard_option.get_rect(topleft=(50, 120))
+                        msg_surface.blit(discard_option, (50, 120))
+                        if add_option_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.held_weapon = random_item
+
+                    elif random_item.item_name != 'New Backpack' and random_item.item_type != 'Weapon upgrade' and \
+                            len(player_inventory.items) < player_inventory.item_capacity:
+                        found_item_text = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
+                            random_item.item_power) + '). Add it to your inventory?', True, WHITE)
+                        add_option = text.render('Add it', True, WHITE)
+                        add_option_rect = add_option.get_rect(topleft=(50, 80))
+                        msg_surface.blit(add_option, (50, 80))
+                        discard_option = text.render('Discard it', True, WHITE)
+                        discard_option_rect = discard_option.get_rect(topleft=(50, 120))
+                        msg_surface.blit(discard_option, (50, 120))
+                        if add_option_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
                             player_inventory.add_item(random_item)
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                    elif discard_option_rect.collidepoint(mouse_pos[0] - 80,
-                                                          mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                elif random_item.item_type == 'Weapon upgrade':
-                    found_item = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
-                        random_item.item_power) + '). Use it as your main weapon? Current weapon power lvl: ' +
-                                             str(player_inventory.held_weapon.item_power), True, WHITE)
-                    found_item_rect = found_item.get_rect(topleft=(50, 40))
-                    msg_surface.blit(found_item, (50, 40))
-                    add_option = text.render('Use it', True, WHITE)
-                    add_option_rect = add_option.get_rect(topleft=(50, 80))
-                    msg_surface.blit(add_option, (50, 80))
-                    discard_option = text.render('Discard it', True, WHITE)
-                    discard_option_rect = discard_option.get_rect(topleft=(50, 120))
-                    msg_surface.blit(discard_option, (50, 120))
+
+                    else:
+                        found_item_text = text.render('You found a ' + random_item.item_name + ' (Power: ' + str(
+                            random_item.item_power) + '), but your inventory is full. Replace it with something?', True,
+                                                      WHITE)
+                        discard_option = text.render('Discard it', True, WHITE)
+                        discard_option_rect = discard_option.get_rect(topleft=(50, 80))
+                        msg_surface.blit(discard_option, (50, 80))
+                        replace_option1 = text.render('Replace it with ' + player_inventory.items[i0].item_name, True,
+                                                      WHITE)
+                        replace_option1_rect = replace_option1.get_rect(topleft=(50, 120))
+                        if len(player_inventory.items) >= 1:
+                            msg_surface.blit(replace_option1, (50, 120))
+                        replace_option2 = text.render('Replace it with ' + player_inventory.items[i1].item_name, True,
+                                                      WHITE)
+                        replace_option2_rect = replace_option2.get_rect(topleft=(50, 160))
+                        if len(player_inventory.items) >= 2:
+                            msg_surface.blit(replace_option2, (50, 160))
+                        replace_option3 = text.render('Replace it with ' + player_inventory.items[i2].item_name, True,
+                                                      WHITE)
+                        replace_option3_rect = replace_option3.get_rect(topleft=(50, 200))
+                        if len(player_inventory.items) >= 3:
+                            msg_surface.blit(replace_option3, (50, 200))
+                        replace_option4 = text.render('Replace it with ' + player_inventory.items[i3].item_name, True,
+                                                      WHITE)
+                        replace_option4_rect = replace_option4.get_rect(topleft=(50, 240))
+                        if len(player_inventory.items) >= 4:
+                            msg_surface.blit(replace_option4, (50, 240))
+                        replace_option5 = text.render('Replace it with ' + player_inventory.items[i4].item_name, True,
+                                                      WHITE)
+                        replace_option5_rect = replace_option5.get_rect(topleft=(50, 280))
+                        if len(player_inventory.items) >= 5:
+                            msg_surface.blit(replace_option5, (50, 280))
+                        replace_option6 = text.render('Replace it with ' + player_inventory.items[i5].item_name, True,
+                                                      WHITE)
+                        replace_option6_rect = replace_option6.get_rect(topleft=(50, 320))
+                        if len(player_inventory.items) >= 6:
+                            msg_surface.blit(replace_option6, (50, 320))
+                        if replace_option1_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i0])
+                        elif replace_option2_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i1])
+                        elif replace_option3_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i2])
+                        elif replace_option4_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i3])
+                        elif replace_option5_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i4])
+                        elif replace_option6_rect.collidepoint(mouse_pos[0] - 80, mouse_pos[1] - 170) and \
+                                pygame.mouse.get_pressed() == (1, 0, 0):
+                            player_inventory.replace_item(random_item, player_inventory.items[i5])
+
+                    found_item_text_rect = found_item_text.get_rect(topleft=(50, 40))
+                    msg_surface.blit(found_item_text, (50, 40))
                     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
                     window.blit(msg_surface, (80, 170))
                     pygame.display.update(msg_surface_rect)
-                    if add_option_rect.collidepoint(mouse_pos[0] - 80,
-                                                    mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (1, 0, 0):
-                        if random_item.item_type == 'Weapon upgrade' and replace_weapon is True:
-                            player_inventory.held_weapon = random_item
-                        else:
-                            player_inventory.held_weapon = random_item
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                    elif discard_option_rect.collidepoint(mouse_pos[0] - 80,
-                                                          mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                elif random_item.item_name == 'New Backpack':
-                    found_item = text.render(
-                        'You found a ' + random_item.item_name + '. ' + random_item.item_type, True, WHITE)
-                    found_item_rect = found_item.get_rect(topleft=(50, 40))
-                    msg_surface.blit(found_item, (50, 40))
-                    pygame.display.update(msg_surface_rect)
-                    player_inventory.item_capacity += 1
-                    found_items_rect_index = hero.rect.collidelist(
-                        drawn_map_items_rects)
-                    found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
                     if pygame.mouse.get_pressed() == (1, 0, 0):
-                        wait = False
-                else:
-                    found_item = text.render('You found a ' + random_item.item_name + ' (Power: ' + str(
-                        random_item.item_power) + '), but your inventory is full. Replace it with something?', True,
-                                             WHITE)
-                    found_item_rect = found_item.get_rect(topleft=(50, 40))
-                    msg_surface.blit(found_item, (50, 40))
-                    replace_option1 = text.render('Replace it with ' + player_inventory.items[0].item_name, True, WHITE)
-                    replace_option1_rect = replace_option1.get_rect(topleft=(50, 80))
-                    msg_surface.blit(replace_option1, (50, 80))
-                    replace_option2 = text.render('Replace it with ' + player_inventory.items[1].item_name, True, WHITE)
-                    replace_option2_rect = replace_option1.get_rect(topleft=(50, 120))
-                    msg_surface.blit(replace_option2, (50, 120))
-                    replace_option3 = text.render('Replace it with ' + player_inventory.items[2].item_name, True, WHITE)
-                    replace_option3_rect = replace_option1.get_rect(topleft=(50, 160))
-                    msg_surface.blit(replace_option3, (50, 160))
-                    discard_option = text.render('Discard it', True, WHITE)
-                    discard_option_rect = discard_option.get_rect(topleft=(50, 200))
-                    msg_surface.blit(discard_option, (50, 200))
-                    msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
-                    window.blit(msg_surface, (80, 170))
-                    pygame.display.update(msg_surface_rect)
-                    if replace_option1_rect.collidepoint(mouse_pos[0] - 80,
-                                                         mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        player_inventory.replace_item(random_item, player_inventory.items[0])
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                    elif replace_option2_rect.collidepoint(mouse_pos[0] - 80,
-                                                           mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        player_inventory.replace_item(random_item, player_inventory.items[1])
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                    elif replace_option3_rect.collidepoint(mouse_pos[0] - 80,
-                                                           mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        player_inventory.replace_item(random_item, player_inventory.items[2])
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
-                    elif discard_option_rect.collidepoint(mouse_pos[0] - 80,
-                                                          mouse_pos[1] - 170) and pygame.mouse.get_pressed() == (
-                            1, 0, 0):
-                        found_items_rect_index = hero.rect.collidelist(
-                            drawn_map_items_rects)
-                        found_items_rects.append(pygame.Rect(drawn_map_items_rects[found_items_rect_index]))
-                        wait = False
+                        found_items_rects.append(item_test_rect)
+                        item_wait = False
 
     pygame.quit()

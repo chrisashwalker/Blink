@@ -6,7 +6,7 @@ drawn_map = None
 drawn_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
 drawn_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
 drawn_wall_rects = []
-drawn_map_items_rects = []
+drawn_map_items = []
 
 
 # Creates and draws the map rects
@@ -19,7 +19,7 @@ class DrawMap:
         walls = []
         self.wall_rects = []
         map_items = []
-        self.map_items_rects = []
+        self.map_items_pos = []
         opponents_pos = []
         self.opponents = []
         o_id = -1
@@ -49,9 +49,7 @@ class DrawMap:
         for map_item in map_items:
             map_item_x = map_item[0] * tile_width
             map_item_y = (map_item[1] - 1) * tile_height
-            map_item_width = tile_width
-            map_item_height = tile_height
-            self.map_items_rects.append(pygame.Rect(map_item_x, map_item_y, map_item_width, map_item_height))
+            self.map_items_pos.append((map_item_x, map_item_y))
         for o_pos in opponents_pos:
             random_op_no = random.randint(1, 3)
             o_id += 1

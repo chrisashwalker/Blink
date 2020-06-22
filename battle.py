@@ -37,7 +37,7 @@ def arena(player, opponent, player_inventory):
     while player_status.hp > 0 and opponent_status.hp > 0:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                return False
         mouse_pos = pygame.mouse.get_pos()
         window.fill(BLACK)
         window.blit(player.surface, PLAYER_POS)
@@ -119,7 +119,7 @@ def arena(player, opponent, player_inventory):
     # The loop - and therefore, battle - ends when either the player or opponent has 0 HP
     if player_status.hp <= 0:
         end_battle(opponent, player_status)
-    else:
+    elif opponent_status.hp <= 0:
         end_battle(player, player_status)
     if player_status.hp > 0:
         return True

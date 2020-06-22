@@ -1,9 +1,15 @@
+from shared import *
+
 
 class Item:
     def __init__(self, item_name, item_type, item_power):
+        # noinspection PyCallByClass,PyTypeChecker
+        pygame.sprite.Sprite.__init__(self)
         self.item_name = item_name
         self.item_type = item_type
         self.item_power = item_power
+        self.surface = item_img
+        self.rect = self.surface.get_rect()
 
     def use_item(self, player_status, opponent_status):
         if self.item_type == 'Use once to boost HP during battle':
@@ -34,4 +40,4 @@ potion = Item('Potion', 'Use once to boost HP during battle', 3)
 rock = Item('Rock', 'Use once to damage the opponent during battle', 2)
 pin = Item('Rolling Pin', 'Weapon upgrade', 1)
 new_backpack = Item('New Backpack', 'Increased storage capacity by 1', 0)
-items_tuple = (potion, rock, pin, new_backpack)
+items_list = [potion, rock, pin, new_backpack]
