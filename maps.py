@@ -11,8 +11,9 @@ drawn_map_items = []
 # Creates and draws the map rects
 
 class DrawMap:
-    def __init__(self, map_layout, map_background, wall_img, map_music):
+    def __init__(self, map_layout, map_background, blink_background, wall_img, map_music):
         self.map_background = map_background
+        self.blink_background = blink_background
         self.wall_img = wall_img
         self.map_music = map_music
         walls = []
@@ -104,9 +105,9 @@ A..............
 ...O...........
 '''
 
-map1 = DrawMap(map1_layout, bg3, wall1, track2)
-map2 = DrawMap(map2_layout, bg3, wall1, track2)
-map3 = DrawMap(map3_layout, bg3, wall1, track2)
+map1 = DrawMap(map1_layout, bg3, bg3, wall1, track2)
+map2 = DrawMap(map2_layout, bg3, bg3, wall1, track2)
+map3 = DrawMap(map3_layout, bg3, bg3, wall1, track2)
 map_tuple = (map1, map2, map3)
 
 

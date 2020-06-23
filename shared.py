@@ -19,6 +19,9 @@ char_width = 64
 char_height = 64
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+blink_surface = pygame.Surface((960, 640))
+blink_surface.fill((0, 0, 0))
+blink_surface.set_alpha(0)
 tp_surface = pygame.Surface((960, 640))
 tp_surface.set_alpha(0)
 msg_surface = pygame.Surface((800, 300))

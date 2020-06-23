@@ -46,12 +46,17 @@ if __name__ == "__main__":
     last_direction_x = 0
     last_direction_y = 0
     last_wander = 0
+    blink = False
+    blink_timer = 0
+    blink_length = random.randint(3600, 18000)
+    blink_wait_timer = 0
+    blink_wait_length = random.randint(3600, 18000)
 
     player_inventory = Backpack(None, 3)
 
     # Function to update the screen, with moving characters
 
-    def display_update(dir_x, dir_y, lst_wander):
+    def display_update(dir_x, dir_y, lst_wander, blink_check):
 
         msg_surface.fill(BLACK)
         window.blit(map_tuple[map_id].map_background, (0, 0))
@@ -70,9 +75,14 @@ if __name__ == "__main__":
             chase_results = chase(op.rect[0], op.rect[1], hero.rect.x, hero.rect.y, drawn_wall_rects,
                                   dir_x, dir_y, lst_wander)
             new_o_pos = (chase_results[0], chase_results[1])
-            op.rect = pygame.Rect(new_o_pos, (64, 64))
-            if op not in defeated:
-                window.blit(op.surface, op.rect)
+            if blink_check:
+                blink_surface.set_alpha(100)
+                if op not in defeated:
+                    op.rect = pygame.Rect(new_o_pos, (64, 64))
+                    window.blit(op.surface, op.rect)
+            else:
+                blink_surface.set_alpha(0)
+        window.blit(blink_surface, (0, 0))
         pygame.display.flip()
         return chase_results[2], chase_results[3], chase_results[4]
 
@@ -108,9 +118,28 @@ if __name__ == "__main__":
             drawn_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
         drawn_map_items = drawn_map.map_items_pos
 
-        last_direction_x = display_update(last_direction_x, last_direction_y, last_wander)[0]
-        last_direction_y = display_update(last_direction_x, last_direction_y, last_wander)[1]
-        last_wander = display_update(last_direction_x, last_direction_y, last_wander)[2]
+        last_direction_x = display_update(last_direction_x, last_direction_y, last_wander, blink)[0]
+        last_direction_y = display_update(last_direction_x, last_direction_y, last_wander, blink)[1]
+        last_wander = display_update(last_direction_x, last_direction_y, last_wander, blink)[2]
+
+        # Run 'blinks' randomly
+
+        if blink_timer <= blink_length and blink_wait_timer > blink_wait_length:
+            blink = True
+            blink_timer += 1
+        elif blink_timer > blink_length and blink_wait_timer > blink_wait_length:
+            blink = True
+            blink_wait_timer = 0
+            blink_wait_length = random.randint(3600, 18000)
+            blink_timer += 1
+        elif blink_timer <= blink_length and blink_wait_timer <= blink_wait_length:
+            blink = False
+            blink_wait_timer += 1
+        elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
+            blink = False
+            blink_timer = 0
+            blink_length = random.randint(3600, 18000)
+            blink_wait_timer += 1
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
 
@@ -153,22 +182,23 @@ if __name__ == "__main__":
                 hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
             if map_id != old_map_id:
                 drawn_opponents = new_opponents
-                display_update(last_direction_x, last_direction_y, last_wander)
+                display_update(last_direction_x, last_direction_y, last_wander, blink)
 
         # Check for collisions between player and opponents to start a battle
 
-        for op_test in drawn_opponents:
-            if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
-                defeated.append(op_test)
-                soundtrack.stop()
-                soundtrack.load(track3)
-                soundtrack.set_volume(0.4)
-                soundtrack.play(-1)
-                run_game = arena(hero, op_test, player_inventory)
-                soundtrack.stop()
-                soundtrack.set_volume(0.9)
-                soundtrack.load(drawn_map.map_music)
-                soundtrack.play(-1)
+        if blink:
+            for op_test in drawn_opponents:
+                if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
+                    defeated.append(op_test)
+                    soundtrack.stop()
+                    soundtrack.load(track3)
+                    soundtrack.set_volume(0.4)
+                    soundtrack.play(-1)
+                    run_game = arena(hero, op_test, player_inventory)
+                    soundtrack.stop()
+                    soundtrack.set_volume(0.9)
+                    soundtrack.load(drawn_map.map_music)
+                    soundtrack.play(-1)
 
         # Item pickup and storage handling
 
