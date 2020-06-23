@@ -1,4 +1,3 @@
-import random
 from profiles import *
 
 map_id = 0
@@ -39,7 +38,7 @@ class DrawMap:
                     opponents_pos.append((symbol_index, line_index))
                 if each_symbol == 'I':
                     map_items.append((symbol_index, line_index))
-        # Loop through the lists of walls and opponents to create their rects for pygame
+        # Loop through the lists of walls and opponents to create their co-ordinates and rects for pygame
         for wall in walls:
             wall_x = wall[0] * tile_width
             wall_y = (wall[1] - 1) * tile_height
@@ -111,7 +110,7 @@ map3 = DrawMap(map3_layout, bg3, wall1, track2)
 map_tuple = (map1, map2, map3)
 
 
-# Moving between maps
+# Handle movement between maps, left-to-right or right-to-left
 
 def map_change_check(player, current_map_id, current_map_entrance_rect, current_map_exit_rect):
     if current_map_entrance_rect.colliderect(hero.rect):

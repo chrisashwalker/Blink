@@ -49,7 +49,7 @@ def arena(player, opponent, player_inventory):
         pygame.draw.rect(window, (255, 0, 0), pygame.Rect(580, 210, opponent_status.hp * 10, 15))
         pygame.display.flip()
 
-        # Process actions where mouse clicks on rects spanning the rendered text. Player  goes first, then opponent
+        # Process actions where mouse clicks on rects spanning the rendered text. Player goes first, then opponent
         if attack_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             risk = False
             action(player, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
@@ -72,7 +72,7 @@ def arena(player, opponent, player_inventory):
                 window.fill(BLACK, attack_rect)
                 window.fill(BLACK, use_item_rect)
                 window.fill(BLACK, risky_attack_rect)
-                window.blit(item_list, OPT2_POS)
+                window.blit(item_list, (430 - len(player_inventory.items) * 50, 500))
                 pygame.display.flip()
                 while i > 1:
                     for event in pygame.event.get():

@@ -10,6 +10,8 @@ pygame.init()
 
 if __name__ == "__main__":
 
+    # Present the title screen and launch the game by pressing Enter or left-click
+
     title_screen = True
     soundtrack.load(track1)
     soundtrack.play(-1)
@@ -26,6 +28,8 @@ if __name__ == "__main__":
             pygame.display.flip()
             title_screen = False
 
+    # Launch game and set initial variables
+
     run_game = True
 
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
@@ -39,17 +43,22 @@ if __name__ == "__main__":
     wall_collision_index = -1
     test_hero_x = 0
     test_hero_y = 0
+    last_direction_x = 0
+    last_direction_y = 0
+    last_wander = 0
 
     player_inventory = Backpack(None, 3)
 
+    # Function to update the screen, with moving characters
 
-    def display_update():
+    def display_update(dir_x, dir_y, lst_wander):
 
         msg_surface.fill(BLACK)
         window.blit(map_tuple[map_id].map_background, (0, 0))
         window.blit(entrance_img, drawn_map_entrance_rect)
         window.blit(exit_img, drawn_map_exit_rect)
         wall_surface.blit(wall1, (0, 0))
+        chase_results = ()
         for w_rect in drawn_wall_rects:
             window.blit(wall_surface, w_rect)
         for item in drawn_map_items:
@@ -58,12 +67,14 @@ if __name__ == "__main__":
                 window.blit(item_img, item_rect)
         window.blit(hero.surface, hero.rect)
         for op in drawn_opponents:
-            new_o_pos = chase(op.rect[0], op.rect[1], hero.rect.x, hero.rect.y, drawn_wall_rects)
+            chase_results = chase(op.rect[0], op.rect[1], hero.rect.x, hero.rect.y, drawn_wall_rects,
+                                  dir_x, dir_y, lst_wander)
+            new_o_pos = (chase_results[0], chase_results[1])
             op.rect = pygame.Rect(new_o_pos, (64, 64))
             if op not in defeated:
                 window.blit(op.surface, op.rect)
         pygame.display.flip()
-
+        return chase_results[2], chase_results[3], chase_results[4]
 
     while run_game:
 
@@ -81,6 +92,8 @@ if __name__ == "__main__":
         pressed_keys = pygame.key.get_pressed()
         mouse_pos = pygame.mouse.get_pos()
 
+        # Redraw the map, characters and objects in each loop, to pick up changes
+
         drawn_map = map_tuple[map_id]
         drawn_wall_rects = drawn_map.wall_rects
         drawn_map_entrance = drawn_map.map_entrance
@@ -95,7 +108,9 @@ if __name__ == "__main__":
             drawn_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
         drawn_map_items = drawn_map.map_items_pos
 
-        display_update()
+        last_direction_x = display_update(last_direction_x, last_direction_y, last_wander)[0]
+        last_direction_y = display_update(last_direction_x, last_direction_y, last_wander)[1]
+        last_wander = display_update(last_direction_x, last_direction_y, last_wander)[2]
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
 
@@ -138,9 +153,9 @@ if __name__ == "__main__":
                 hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
             if map_id != old_map_id:
                 drawn_opponents = new_opponents
-                display_update()
+                display_update(last_direction_x, last_direction_y, last_wander)
 
-        # Update rects based on character positions, check for collisions and start battle
+        # Check for collisions between player and opponents to start a battle
 
         for op_test in drawn_opponents:
             if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
@@ -153,7 +168,7 @@ if __name__ == "__main__":
                 soundtrack.load(drawn_map.map_music)
                 soundtrack.play(-1)
 
-        # Item pickup handling
+        # Item pickup and storage handling
 
         i0 = min(0, len(player_inventory.items) - 1)
         i1 = min(1, len(player_inventory.items) - 1)
