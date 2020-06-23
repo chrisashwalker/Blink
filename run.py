@@ -47,8 +47,8 @@ if __name__ == "__main__":
     last_direction_y = 0
     last_wander = 0
     blink = False
-    blink_timer = 0
-    blink_length = random.randint(3600, 18000)
+    blink_timer = 1
+    blink_length = 0
     blink_wait_timer = 0
     blink_wait_length = random.randint(3600, 18000)
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         last_direction_y = display_update(last_direction_x, last_direction_y, last_wander, blink)[1]
         last_wander = display_update(last_direction_x, last_direction_y, last_wander, blink)[2]
 
-        # Run 'blinks' randomly
+        # Run 'blinks' randomly, which activate/deactivate opponent spawns
 
         if blink_timer <= blink_length and blink_wait_timer > blink_wait_length:
             blink = True
@@ -131,15 +131,26 @@ if __name__ == "__main__":
             blink = True
             blink_wait_timer = 0
             blink_wait_length = random.randint(3600, 18000)
-            blink_timer += 1
-        elif blink_timer <= blink_length and blink_wait_timer <= blink_wait_length:
-            blink = False
-            blink_wait_timer += 1
-        elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
+            window.fill((255, 255, 255))
+            pygame.display.flip()
+            time.sleep(1)
+            soundtrack.play(-1)
+        elif blink_timer > blink_length and blink_wait_timer == blink_wait_length:
             blink = False
             blink_timer = 0
             blink_length = random.randint(3600, 18000)
             blink_wait_timer += 1
+            window.fill((255, 255, 255))
+            pygame.display.flip()
+            time.sleep(1)
+        elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
+            if blink_wait_timer + 750 == blink_wait_length:
+                soundtrack.stop()
+                siren.play(2)
+            blink = False
+            blink_wait_timer += 1
+
+        print(blink_timer, blink_length, blink_wait_timer, blink_wait_length)
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
 
