@@ -36,7 +36,5 @@ The crew explain that they have settled at a gated community, where survivors ha
 Our group is invited to join. They take the helicopter, and a blink occurs mid-flight.
 
 # Next up to code:
-Battle effects
 Save functionality
-Walk animations
 'Blinks'

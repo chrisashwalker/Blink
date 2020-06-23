@@ -54,9 +54,13 @@ def arena(player, opponent, player_inventory):
             risk = False
             action(player, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
                    risk, player, player_inventory)
+            hit.play()
+            time.sleep(0.5)
             if player_status.hp > 0 and opponent_status.hp > 0:
                 action(opponent, player_status, attack_rect, use_item_rect, risky_attack_rect,
                        risk, player, player_inventory)
+                hit.play()
+                time.sleep(0.5)
 
         if use_item_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             item_list_text = ''
@@ -112,9 +116,13 @@ def arena(player, opponent, player_inventory):
             risk = True
             action(player, opponent_status, attack_rect, use_item_rect, risky_attack_rect,
                    risk, player, player_inventory)
+            hit.play()
+            time.sleep(0.5)
             if player_status.hp > 0 and opponent_status.hp > 0:
                 action(opponent, player_status, attack_rect, use_item_rect, risky_attack_rect,
                        risk, player, player_inventory)
+                hit.play()
+                time.sleep(0.5)
 
     # The loop - and therefore, battle - ends when either the player or opponent has 0 HP
     if player_status.hp <= 0:
@@ -139,17 +147,18 @@ def action(source, target_stat, attack_rect, use_item_rect, risky_attack_rect, r
             damage = (source.st + weapon_power) * random.randint(0, 3)
         else:
             damage = (source.st + weapon_power)
+        window.blit(hit_img, OPPONENT_POS)
     else:
         if risk:
             damage = (source.st * random.randint(1, 2))
         else:
             damage = source.st
+        window.blit(hit_img, PLAYER_POS)
     target_stat.hp -= damage
     window.fill(BLACK, attack_rect)
     window.fill(BLACK, use_item_rect)
     window.fill(BLACK, risky_attack_rect)
     pygame.display.flip()
-    time.sleep(0.1)
 
 
 # End of battle function - congratulate or commiserate player before returning back to the main game

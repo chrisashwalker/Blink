@@ -162,9 +162,11 @@ if __name__ == "__main__":
                 defeated.append(op_test)
                 soundtrack.stop()
                 soundtrack.load(track3)
+                soundtrack.set_volume(0.4)
                 soundtrack.play(-1)
                 run_game = arena(hero, op_test, player_inventory)
                 soundtrack.stop()
+                soundtrack.set_volume(0.9)
                 soundtrack.load(drawn_map.map_music)
                 soundtrack.play(-1)
 
