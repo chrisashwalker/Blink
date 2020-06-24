@@ -52,46 +52,65 @@ if __name__ == "__main__":
                 line += 1
             pygame.display.flip()
             if pressed_keys[pygame.K_1]:
-                save_data = (saves_list[0])
+                save_data = list(saves_list[0])
                 window.fill(BLACK)
                 pygame.display.flip()
                 load_screen = False
             if pressed_keys[pygame.K_2]:
-                save_data = (saves_list[1])
+                save_data = list(saves_list[1])
                 window.fill(BLACK)
                 pygame.display.flip()
                 load_screen = False
             if pressed_keys[pygame.K_3]:
-                save_data = (saves_list[2])
+                save_data = list(saves_list[2])
                 window.fill(BLACK)
                 pygame.display.flip()
                 load_screen = False
             if pressed_keys[pygame.K_4]:
-                save_data = (saves_list[3])
+                save_data = list(saves_list[3])
                 window.fill(BLACK)
                 pygame.display.flip()
                 load_screen = False
         else:
             load_screen = False
 
-    # Launch game and set initial variables
+    # Launch game, load save data, if applicable, and set initial variables
 
     run_game = True
 
+    player_inventory = Backpack(None, 3)
+    found_items_rects = []
     if save_data:
-        player_inventory = Backpack(save_data[1], save_data[2])
-        player_inventory.items = list(save_data[3])
+        if save_data[1]:
+            saved_weapon = save_data[1]
+            for item1 in items_list:
+                if item1.item_name == saved_weapon:
+                    player_inventory = Backpack(item1, save_data[2])
+        else:
+            player_inventory = Backpack(None, save_data[2])
+        saved_items = save_data[3].split(',')
+        for item2 in items_list:
+            for saved_item in saved_items:
+                if saved_item == item2.item_name:
+                    player_inventory.items.append(item2)
         map_id = save_data[4]
+        hero.rect.x = save_data[5]
+        hero.rect.y = save_data[6]
+        saved_found_items = save_data[7].split('.')
+        for saved_found_i in saved_found_items:
+            saved_found_i_split = saved_found_i.split(',')
+            if not found_items_rects:
+                found_items_rects = [pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64)]
+            else:
+                found_items_rects.append(pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64))
     else:
-        player_inventory = Backpack(None, 3)
         map_id = 0
-        save_data = ['test', '', player_inventory.item_capacity, [], map_id]
+        save_data = ['Save1', '', player_inventory.item_capacity, '', map_id, hero.rect.x, hero.rect.y, '']
 
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
     soundtrack.load(map_tuple[map_id].map_music)
     soundtrack.play(-1)
     defeated = []
-    found_items_rects = []
 
     drawn_map = map_tuple[map_id]
     drawn_opponents = drawn_map.opponents
@@ -239,18 +258,36 @@ if __name__ == "__main__":
                         hero.speed -= 1
                 else:
                     hero.speed -= 1
+
+            # Check for map changes and save the game automatically
+
             old_map_id = map_id
             map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
                 hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
             if map_id != old_map_id:
-                if player_inventory.held_weapon is not None:
-                    save_data[1] = player_inventory.held_weapon
-                else:
-                    save_data[1] = ''
+                if player_inventory.held_weapon:
+                    save_data[1] = player_inventory.held_weapon.item_name
                 save_data[2] = player_inventory.item_capacity
-                save_data[3] = str(player_inventory.items)
+                inventory_items = ''
+                for item3 in player_inventory.items:
+                    if inventory_items == '':
+                        inventory_items = item3.item_name
+                    else:
+                        inventory_items += ',' + item3.item_name
+                save_data[3] = inventory_items
                 save_data[4] = map_id
-                save_game(save_data[0], save_data[1], save_data[2], save_data[3], save_data[4])
+                save_data[5] = hero.rect.x
+                save_data[6] = hero.rect.y
+                found_items = ''
+                for item4 in found_items_rects:
+                    if found_items == '':
+                        found_items = str(item4[0]) + ',' + str(item4[1])
+                    else:
+                        found_items += '.' + str(item4[0]) + ',' + str(item4[1])
+                save_data[7] = found_items
+                save_game(
+                    save_data[0], save_data[1], save_data[2], save_data[3],
+                    save_data[4], save_data[5], save_data[6], save_data[7])
                 drawn_opponents = new_opponents
                 display_update(last_direction_x, last_direction_y, last_wander, blink)
 

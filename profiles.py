@@ -72,5 +72,3 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
         return opponent_x, opponent_y, direction_x, direction_y, last_wander
     else:
         return opponent_x, opponent_y, direction_x, direction_y, last_wander
-
-
