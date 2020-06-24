@@ -1,6 +1,7 @@
 # Main game program
 
 
+from saves import *
 from battle import arena
 from inventory import *
 from maps import *
@@ -13,6 +14,9 @@ if __name__ == "__main__":
     # Present the title screen and launch the game by pressing Enter or left-click
 
     title_screen = True
+    load_screen = False
+    save_data = []
+    saves_list = []
     soundtrack.load(track1)
     soundtrack.play(-1)
     while title_screen:
@@ -26,11 +30,62 @@ if __name__ == "__main__":
             soundtrack.stop()
             window.fill(BLACK)
             pygame.display.flip()
+            load_screen = True
             title_screen = False
+    while load_screen:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        pressed_keys = pygame.key.get_pressed()
+        # noinspection PyBroadException
+        try:
+            saves_list = fetch_all_saves()
+        except Exception:
+            load_screen = False
+        if saves_list:
+            window.blit(saves_surface, (80, 120))
+            line = 1
+            for save in saves_list:
+                print_out = text.render(str(line) + ': ' + save[0], True, WHITE)
+                print_out.get_rect(topleft=(50, line * 50))
+                saves_surface.blit(print_out, (50, line * 50))
+                line += 1
+            pygame.display.flip()
+            if pressed_keys[pygame.K_1]:
+                save_data = (saves_list[0])
+                window.fill(BLACK)
+                pygame.display.flip()
+                load_screen = False
+            if pressed_keys[pygame.K_2]:
+                save_data = (saves_list[1])
+                window.fill(BLACK)
+                pygame.display.flip()
+                load_screen = False
+            if pressed_keys[pygame.K_3]:
+                save_data = (saves_list[2])
+                window.fill(BLACK)
+                pygame.display.flip()
+                load_screen = False
+            if pressed_keys[pygame.K_4]:
+                save_data = (saves_list[3])
+                window.fill(BLACK)
+                pygame.display.flip()
+                load_screen = False
+        else:
+            load_screen = False
 
     # Launch game and set initial variables
 
     run_game = True
+
+    if save_data:
+        player_inventory = Backpack(save_data[1], save_data[2])
+        player_inventory.items = list(save_data[3])
+        map_id = save_data[4]
+    else:
+        player_inventory = Backpack(None, 3)
+        map_id = 0
+        save_data = ['test', '', player_inventory.item_capacity, [], map_id]
 
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
     soundtrack.load(map_tuple[map_id].map_music)
@@ -51,8 +106,6 @@ if __name__ == "__main__":
     blink_length = 0
     blink_wait_timer = 0
     blink_wait_length = random.randint(3600, 18000)
-
-    player_inventory = Backpack(None, 3)
 
     # Function to update the screen, with moving characters
 
@@ -150,8 +203,6 @@ if __name__ == "__main__":
             blink = False
             blink_wait_timer += 1
 
-        print(blink_timer, blink_length, blink_wait_timer, blink_wait_length)
-
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
 
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or \
@@ -192,6 +243,14 @@ if __name__ == "__main__":
             map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
                 hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
             if map_id != old_map_id:
+                if player_inventory.held_weapon is not None:
+                    save_data[1] = player_inventory.held_weapon
+                else:
+                    save_data[1] = ''
+                save_data[2] = player_inventory.item_capacity
+                save_data[3] = str(player_inventory.items)
+                save_data[4] = map_id
+                save_game(save_data[0], save_data[1], save_data[2], save_data[3], save_data[4])
                 drawn_opponents = new_opponents
                 display_update(last_direction_x, last_direction_y, last_wander, blink)
 
