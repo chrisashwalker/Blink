@@ -34,6 +34,3 @@ Hero is almost attacked by a man who seems confused and shocked to see another p
 They accompany each other and reach the helicopter which has landed at a campsite.
 The crew explain that they have settled at a gated community, where survivors have gathered and follow strict regimes to prevent casualties. 
 Our group is invited to join. They take the helicopter, and a blink occurs mid-flight.
-
-# Next task:
-Allow name input for game saves

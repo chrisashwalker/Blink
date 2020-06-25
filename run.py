@@ -19,6 +19,8 @@ if __name__ == "__main__":
     saves_list = []
     soundtrack.load(track1)
     soundtrack.play(-1)
+    name = ''
+    load_data = True
     while title_screen:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -33,20 +35,23 @@ if __name__ == "__main__":
             load_screen = True
             title_screen = False
     while load_screen:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
         pressed_keys = pygame.key.get_pressed()
         # noinspection PyBroadException
         try:
             saves_list = fetch_all_saves()
         except Exception:
-            load_screen = False
-        if saves_list:
-            window.blit(saves_surface, (80, 120))
+            pass
+        if saves_list and load_data:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+            window.blit(saves_surface, (160, 160))
+            ask_load = text.render('Load game? Press the number to load or just 0 to start a new game', True, WHITE)
+            ask_load.get_rect(topleft=(50, 20))
+            saves_surface.blit(ask_load, (50, 20))
             line = 1
             for save in saves_list:
-                print_out = text.render(str(line) + ': ' + save[0], True, WHITE)
+                print_out = text.render(str(line) + ': ' + save[0] + '     Progress: Map ' + str(save[4]), True, WHITE)
                 print_out.get_rect(topleft=(50, line * 50))
                 saves_surface.blit(print_out, (50, line * 50))
                 line += 1
@@ -71,8 +76,28 @@ if __name__ == "__main__":
                 window.fill(BLACK)
                 pygame.display.flip()
                 load_screen = False
+            if pressed_keys[pygame.K_0]:
+                load_data = False
         else:
-            load_screen = False
+            window.blit(saves_surface, (160, 160))
+            saves_surface.fill(BLACK)
+            ask_name = text.render('Type your name and press Enter', True, WHITE)
+            ask_name.get_rect(topleft=(50, 20))
+            saves_surface.blit(ask_name, (50, 20))
+            unicode_string = 'abcdefghijklmnopqrstuvwxyz'
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                if event.type == pygame.KEYDOWN and event.unicode in unicode_string:
+                    name += event.unicode
+            if pressed_keys[pygame.K_BACKSPACE]:
+                name = name[:-1]
+            display_name = text.render(str.upper(name), True, WHITE)
+            display_name.get_rect(topleft=(50, 100))
+            saves_surface.blit(display_name, (50, 100))
+            pygame.display.flip()
+            if name and pressed_keys[pygame.K_RETURN]:
+                load_screen = False
 
     # Launch game, load save data, if applicable, and set initial variables
 
@@ -97,15 +122,17 @@ if __name__ == "__main__":
         hero.rect.x = save_data[5]
         hero.rect.y = save_data[6]
         saved_found_items = save_data[7].split('.')
-        for saved_found_i in saved_found_items:
-            saved_found_i_split = saved_found_i.split(',')
-            if not found_items_rects:
-                found_items_rects = [pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64)]
-            else:
-                found_items_rects.append(pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64))
+        if saved_found_items[0]:
+            for saved_found_i in saved_found_items:
+                saved_found_i_split = saved_found_i.split(',')
+                if not found_items_rects:
+                    found_items_rects = [pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64)]
+                else:
+                    found_items_rects.append(
+                        pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64))
     else:
         map_id = 0
-        save_data = ['Save1', '', player_inventory.item_capacity, '', map_id, hero.rect.x, hero.rect.y, '']
+        save_data = [str.upper(name), '', player_inventory.item_capacity, '', map_id, hero.rect.x, hero.rect.y, '']
 
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
     soundtrack.load(map_tuple[map_id].map_music)
