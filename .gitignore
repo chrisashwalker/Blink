@@ -1,3 +1,9 @@
+.idea/
+images/
+music/
+story.txt
+game_saves.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
