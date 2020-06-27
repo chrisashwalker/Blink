@@ -1,9 +1,3 @@
-.idea/
-images/
-music/
-strings.py
-story.txt
-game_saves.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -134,3 +128,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Blink specific
+.idea/
+images/
+music/
+strings.py
+story.txt
+game_saves.db
