@@ -1,6 +1,7 @@
 .idea/
 images/
 music/
+strings.py
 story.txt
 game_saves.db
 
