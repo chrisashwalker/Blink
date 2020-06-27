@@ -21,6 +21,7 @@ if __name__ == "__main__":
     soundtrack.play(-1)
     name = ''
     load_data = True
+    new_game = False
     while title_screen:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -77,14 +78,16 @@ if __name__ == "__main__":
                 pygame.display.flip()
                 load_screen = False
             if pressed_keys[pygame.K_0]:
+                new_game = True
                 load_data = False
         else:
+            new_game = True
             window.blit(saves_surface, (160, 160))
             saves_surface.fill(BLACK)
             ask_name = text.render('Type your name and press Enter', True, WHITE)
             ask_name.get_rect(topleft=(50, 20))
             saves_surface.blit(ask_name, (50, 20))
-            unicode_string = 'abcdefghijklmnopqrstuvwxyz'
+            unicode_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -98,6 +101,116 @@ if __name__ == "__main__":
             pygame.display.flip()
             if name and pressed_keys[pygame.K_RETURN]:
                 load_screen = False
+
+    while new_game:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        window.blit(accident0_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(2)
+        window.blit(accident1_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(1)
+        window.blit(accident2_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(1)
+        window.blit(accident3_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(2)
+        window.fill(BLACK)
+        intro_text = text.render('Some time later...', True, WHITE)
+        intro_text_rect = intro_text.get_rect(center=(480, 320))
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(2)
+        window.fill(BLACK)
+        window.blit(bedclosed_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(4)
+        window.blit(bedopen_img, (160, 0))
+        pygame.display.flip()
+        time.sleep(2)
+        intro_text_rect[0] = 10
+        window.fill(BLACK)
+        intro_text = text.render('You awaken in a hospital bed. There are no other patients or staff around.',
+                                 True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(4)
+        window.fill(BLACK)
+        intro_text = text.render('Weak and disoriented, you manage to leave the building but '
+                                 'still there are no signs of life.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(5)
+        window.fill(BLACK)
+        intro_text = text.render('The area outside the hospital is in disarray. '
+                                 'You stumble around, without sense of direction.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(5)
+        window.fill(BLACK)
+        intro_text = text.render('Suddenly, a civil defense siren blasts '
+                                 'and you seek cover in an abandoned homeware store', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(6)
+        window.fill(BLACK)
+        intro_text = text.render('From inside, you watch the sky light up in a brief, sharp flash and '
+                                 'the siren stops immediately.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(6)
+        window.fill(BLACK)
+        intro_text = text.render('The sky has turned dark.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(2)
+        window.fill(BLACK)
+        intro_text = text.render('You notice someone shambling around just outside and you call for help.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(4)
+        window.fill(BLACK)
+        intro_text = text.render('What turns to face your cries is not human.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(3)
+        window.fill(BLACK)
+        intro_text = text.render('It lunges towards you and violently attacks.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(3)
+        window.fill(BLACK)
+        intro_text = text.render('In self-defense, you grab a nearby rolling pin from the floor and '
+                                 'bludgeon the creature to death.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(6)
+        window.fill(BLACK)
+        intro_text = text.render('Startled, you drop the makeshift weapon, staring breathlessly at the creature and '
+                                 'at its blood on your hands.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(7)
+        window.fill(BLACK)
+        intro_text = text.render('The siren starts once more.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(3)
+        window.fill(BLACK)
+        intro_text = text.render('Another brief flash in the sky, and the creature disappears.', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(5)
+        window.fill(BLACK)
+        intro_text = text.render('You leave the store, in search of safer surroundings...', True, WHITE)
+        window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
+        pygame.display.flip()
+        time.sleep(4)
+        window.fill(BLACK)
+        new_game = False
 
     # Launch game, load save data, if applicable, and set initial variables
 
