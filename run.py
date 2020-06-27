@@ -131,7 +131,7 @@ if __name__ == "__main__":
         window.blit(bedopen_img, (160, 0))
         pygame.display.flip()
         time.sleep(2)
-        intro_text_rect[0] = 10
+        intro_text_rect[0] = 64
         window.fill(BLACK)
         intro_text = text.render('You awaken in a hospital bed. There are no other patients or staff around.',
                                  True, WHITE)
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         time.sleep(5)
         window.fill(BLACK)
         intro_text = text.render('Suddenly, a civil defense siren blasts '
-                                 'and you seek cover in an abandoned homeware store', True, WHITE)
+                                 'and you seek cover in an abandoned homeware store.', True, WHITE)
         window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
         pygame.display.flip()
         time.sleep(6)
@@ -301,7 +301,7 @@ if __name__ == "__main__":
     while run_game:
 
         framerate.tick(60)
-        hero.speed = 10
+        hero.speed = 5
 
         # Listen for the window being closed and quit the game
 
@@ -342,10 +342,10 @@ if __name__ == "__main__":
         elif blink_timer > blink_length and blink_wait_timer > blink_wait_length:
             blink = True
             blink_wait_timer = 0
-            blink_wait_length = random.randint(3600, 18000)
+            blink_wait_length = random.randint(3600, 9000)
             window.fill((255, 255, 255))
             pygame.display.flip()
-            time.sleep(1)
+            time.sleep(0.5)
             soundtrack.play(-1)
         elif blink_timer > blink_length and blink_wait_timer == blink_wait_length:
             blink = False
@@ -354,7 +354,7 @@ if __name__ == "__main__":
             blink_wait_timer += 1
             window.fill((255, 255, 255))
             pygame.display.flip()
-            time.sleep(1)
+            time.sleep(0.5)
         elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
             if blink_wait_timer + 750 == blink_wait_length:
                 soundtrack.stop()

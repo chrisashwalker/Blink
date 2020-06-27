@@ -31,7 +31,7 @@ class Character:
 
 # Character declarations
 
-hero = Character('Hero', 10, 2, 10, 0, 0)
+hero = Character('Hero', 10, 2, 5, 0, 0)
 
 
 # Chases the character when visibility line is not obscured by walls; otherwise randomly wanders around the map
