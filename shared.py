@@ -1,49 +1,40 @@
 import os
-
 import pygame
 
 pygame.init()
 
-# Window settings, shared variables, backgrounds and music
+# Window settings, shared variables, pygame surfaces and sounds
 window_width = 960
 window_height = 640
 window = pygame.display.set_mode((window_width, window_height))
 title = pygame.display.set_caption('Blink')
-title_img = pygame.image.load(os.path.join('images', 'title.png')).convert_alpha()
 framerate = pygame.time.Clock()
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 bigtext = pygame.font.SysFont('Arial', 50)
 text = pygame.font.SysFont('Arial', 20)
 tile_width = 64
 tile_height = 64
 char_width = 64
 char_height = 64
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+
+# TODO: Consider cutting down on no. of surfaces
 saves_surface = pygame.Surface((800, 400))
 intro_surface = pygame.Surface((960, 640))
 intro_surface.fill((0, 0, 0))
 blink_surface = pygame.Surface((960, 640))
 blink_surface.fill((0, 0, 0))
 blink_surface.set_alpha(0)
-tp_surface = pygame.Surface((960, 640))
-tp_surface.set_alpha(0)
+trans_surface = pygame.Surface((960, 640))
+trans_surface.set_alpha(0)
 msg_surface = pygame.Surface((800, 400))
 wall_surface = pygame.Surface((64, 64))
 items_surface = pygame.Surface((64, 64))
-item_img = pygame.image.load(os.path.join('images', 'item.png')).convert_alpha()
-entrance_img = pygame.image.load(os.path.join('images', 'entrance.png')).convert_alpha()
-exit_img = pygame.image.load(os.path.join('images', 'exit.png')).convert_alpha()
-hit_img = pygame.image.load(os.path.join('images', 'hit.png')).convert_alpha()
-accident1_img = pygame.image.load(os.path.join('images', 'accident1.png')).convert_alpha()
-accident2_img = pygame.image.load(os.path.join('images', 'accident2.png')).convert_alpha()
-accident3_img = pygame.image.load(os.path.join('images', 'accident3.png')).convert_alpha()
-accident0_img = pygame.image.load(os.path.join('images', 'accident0.png')).convert_alpha()
-bedclosed_img = pygame.image.load(os.path.join('images', 'hospitaloccupiedclosed.png')).convert_alpha()
-bedopen_img = pygame.image.load(os.path.join('images', 'hospitaloccupiedopen.png')).convert_alpha()
+
 soundtrack = pygame.mixer.music
 soundtrack.set_volume(0.9)
-track1 = os.path.join('music', 'track1.wav')
-track2 = os.path.join('music', 'track2.wav')
-track3 = os.path.join('music', 'track3.wav')
-hit = pygame.mixer.Sound(os.path.join('music', 'hit.wav'))
-siren = pygame.mixer.Sound(os.path.join('music', 'siren.wav'))
+track1 = os.path.join('sounds', 'track1.wav')
+track2 = os.path.join('sounds', 'track2.wav')
+track3 = os.path.join('sounds', 'track3.wav')
+hit = pygame.mixer.Sound(os.path.join('sounds', 'hit.wav'))
+siren = pygame.mixer.Sound(os.path.join('sounds', 'siren.wav'))

@@ -1,8 +1,12 @@
+import pygame
 import random
 import time
 
-from shared import *
+from shared import window, text, WHITE, BLACK, hit
+from images import hit_image
+from strings import weapon_upgrade
 
+# Declare option / message positions onscreen
 OPT1_POS = (420, 440)
 OPT2_POS = (420, 500)
 OPT3_POS = (420, 540)
@@ -12,11 +16,6 @@ WINNER_POS = (420, 240)
 RESULT_MSG_POS = (420, 160)
 
 
-# Status object:
-# health points
-# ability points
-# restoration status
-
 class Status:
     def __init__(self, hp):
         self.hp = hp
@@ -25,8 +24,8 @@ class Status:
 # Battle arena function - process a battle between the hero and an opponent
 
 def arena(player, opponent, player_inventory):
-    player_status = Status(player.base_hp)
-    opponent_status = Status(opponent.base_hp)
+    player_status = Status(player.health)
+    opponent_status = Status(opponent.health)
     attack_option = text.render('Attack', True, WHITE)
     use_item_option = text.render('Use an item', True, WHITE)
     attack_rect = attack_option.get_rect(topleft=OPT1_POS)
@@ -62,11 +61,12 @@ def arena(player, opponent, player_inventory):
                 hit.play()
                 time.sleep(0.5)
 
+        # Item use handling. TODO: Improve item listing and usage
         if use_item_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             item_list_text = ''
             i = 1
             for each_item in player_inventory.items:
-                if each_item.item_type == 'Weapon upgrade':
+                if each_item.item_type == weapon_upgrade:
                     continue
                 else:
                     item_list_text += 'Type 0 to Cancel;     ' + str(i) + ' for ' + each_item.item_name + ';     '
@@ -136,7 +136,6 @@ def arena(player, opponent, player_inventory):
 
 
 # Action function - process attacks and display the effects
-
 def action(source, target_stat, attack_rect, use_item_rect, risky_attack_rect, risk, player,
            player_inventory):
     if source == player:
@@ -144,16 +143,16 @@ def action(source, target_stat, attack_rect, use_item_rect, risky_attack_rect, r
         if player_inventory.held_weapon is not None:
             weapon_power = player_inventory.held_weapon.item_power
         if risk:
-            damage = (source.st + weapon_power) * random.randint(0, 3)
+            damage = (source.strength + weapon_power) * random.randint(0, 3)
         else:
-            damage = (source.st + weapon_power)
-        window.blit(hit_img, OPPONENT_POS)
+            damage = (source.strength + weapon_power)
+        window.blit(hit_image, OPPONENT_POS)
     else:
         if risk:
-            damage = (source.st * random.randint(1, 2))
+            damage = (source.strength * random.randint(1, 2))
         else:
-            damage = source.st
-        window.blit(hit_img, PLAYER_POS)
+            damage = source.strength
+        window.blit(hit_image, PLAYER_POS)
     target_stat.hp -= damage
     window.fill(BLACK, attack_rect)
     window.fill(BLACK, use_item_rect)
@@ -162,7 +161,6 @@ def action(source, target_stat, attack_rect, use_item_rect, risky_attack_rect, r
 
 
 # End of battle function - congratulate or commiserate player before returning back to the main game
-
 def end_battle(winner, player_stat):
     if player_stat.hp > 0:
         battle_result = 'You win!'

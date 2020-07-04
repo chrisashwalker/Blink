@@ -1,16 +1,20 @@
 import sqlite3
 
 
-def save_game(user, held_weapon, inventory_capacity, inventory_items, map_id, hero_x, hero_y, found_items_pos):
+def save_game(
+        user, level_no, held_weapon, inventory_capacity, inventory_items, found_items_pos, level_type, level_layout):
+    # Connect to the saves database
     conn = sqlite3.connect('game_saves.db')
     c = conn.cursor()
 
     c.execute('''CREATE TABLE IF NOT EXISTS saves
-    (user text, held_weapon text, inventory_capacity integer, inventory_items text, map_id integer, 
-    hero_x integer, hero_y integer, found_items_pos text)''')
+    (user text, level_no integer, held_weapon text, inventory_capacity integer, inventory_items text, 
+    found_items_pos text, level_type integer, level_layout text)''')
 
-    save_data = (user, held_weapon, inventory_capacity, inventory_items, map_id, hero_x, hero_y, found_items_pos)
+    save_data = (
+        user, level_no, held_weapon, inventory_capacity, inventory_items, found_items_pos, level_type, level_layout)
 
+    # Get existing save data and overwrite the data if it exists, otherwise create a new database entry
     c.execute('''SELECT user FROM saves
     WHERE user = ?''', [save_data[0]])
 
@@ -25,8 +29,8 @@ def save_game(user, held_weapon, inventory_capacity, inventory_items, map_id, he
             save_data[5], save_data[6], save_data[7], save_data[0])
         c.execute('''UPDATE saves
         SET
-        held_weapon = ?, inventory_capacity = ?, inventory_items = ?, 
-        map_id = ?, hero_x = ?, hero_y = ?, found_items_pos = ?
+        level_no = ?, held_weapon = ?, inventory_capacity = ?, 
+        inventory_items = ?, found_items_pos = ?, level_type = ?, level_layout = ?
         WHERE
         user = ?
         ''', reordered_save_data)
@@ -38,7 +42,8 @@ def fetch_all_saves():
     conn = sqlite3.connect('game_saves.db')
     c = conn.cursor()
 
-    c.execute('''SELECT user, held_weapon, inventory_capacity, inventory_items, map_id, hero_x, hero_y, found_items_pos
+    c.execute('''SELECT user, level_no, held_weapon, inventory_capacity, 
+    inventory_items, found_items_pos, level_type, level_layout
     FROM saves
     ''')
 

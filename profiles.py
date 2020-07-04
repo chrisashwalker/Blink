@@ -1,42 +1,34 @@
+import os
+import pygame
 import random
 import time
 
-from shared import *
-
-# Character object:
-# name
-# base health points
-# strength
-# movement speed
-# position x coordinate
-# position y coordinate
+from shared import window_width, window_height, char_width, char_height, trans_surface
 
 
 class Character:
-    def __init__(self, name, base_hp, st, speed, x, y):
+    def __init__(self, name, health, strength, speed):
         # noinspection PyCallByClass,PyTypeChecker
         pygame.sprite.Sprite.__init__(self)
         self.name = name
-        self.base_hp = base_hp
-        self.st = st
+        self.health = health
+        self.strength = strength
         self.speed = speed
-        self.x = x
-        self.y = y
+
         self.width = char_width
         self.height = char_height
-        self.img = os.path.join('images', (self.name + '.png'))
-        self.surface = pygame.image.load(self.img).convert_alpha()
+        self.image = os.path.join('graphics', (self.name + '.png'))
+        self.surface = pygame.image.load(self.image).convert_alpha()
         self.rect = self.surface.get_rect()
 
 
-# Character declarations
-
-hero = Character('Hero', 10, 2, 5, 0, 0)
+hero = Character('Hero', 10, 2, 5)
 
 
-# Chases the character when visibility line is not obscured by walls; otherwise randomly wanders around the map
+# Opponents chase the player when visibility line is not obscured by walls; otherwise, randomly wander around the map
 
 def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, last_direction_y, last_wander):
+    # Only allow a change of direction every five seconds
     wander_change = time.time()
     if wander_change > last_wander + 5:
         direction_x = random.randint(-1, 1)
@@ -45,10 +37,13 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
     else:
         direction_x = last_direction_x
         direction_y = last_direction_y
+
+    # Draw a line between the opponent and the player; movement following that line and stopping when a wall intersects
     chase_line = pygame.draw.line(
-        tp_surface, (0, 0, 0, 0), (opponent_x + 32, opponent_y + 32), (player_x + 32, player_y + 32), 1)
+        trans_surface, (0, 0, 0, 0), (opponent_x + 32, opponent_y + 32), (player_x + 32, player_y + 32), 1)
     dist_x = opponent_x - player_x
     dist_y = opponent_y - player_y
+
     if chase_line.collidelist(walls) == -1:
         if dist_x > 0:
             new_x = opponent_x - 1
@@ -59,7 +54,8 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
         else:
             new_y = opponent_y + 1
         return new_x, new_y, direction_x, direction_y, last_wander
-    # Wander around the map, avoiding walls and screen boundaries
+
+    # Wander around the map, once every 2 seconds, avoiding walls and screen boundaries
     elif wander_change > last_wander + 2 and pygame.Rect(
             (int(opponent_x + direction_x + 64), int(opponent_y + direction_y + 64)), (64, 64)).collidelist(walls) == \
             -1 and pygame.Rect(
@@ -70,5 +66,7 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
         opponent_x += direction_x
         opponent_y += direction_y
         return opponent_x, opponent_y, direction_x, direction_y, last_wander
+
+    # If the opponent can't see the player and it isn't time to wander yet, just return the last results
     else:
         return opponent_x, opponent_y, direction_x, direction_y, last_wander

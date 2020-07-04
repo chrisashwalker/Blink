@@ -1,4 +1,6 @@
-from shared import *
+import pygame
+from images import item_image
+from strings import hp_boost, damage_once, weapon_upgrade, increased_storage
 
 
 class Item:
@@ -8,13 +10,13 @@ class Item:
         self.item_name = item_name
         self.item_type = item_type
         self.item_power = item_power
-        self.surface = item_img
+        self.surface = item_image
         self.rect = self.surface.get_rect()
 
     def use_item(self, player_status, opponent_status):
-        if self.item_type == 'Use once to boost HP during battle':
+        if self.item_type == hp_boost:
             player_status.hp += self.item_power
-        elif self.item_type == 'Use once to damage the opponent during battle':
+        elif self.item_type == damage_once:
             opponent_status.hp -= self.item_power
 
 
@@ -35,9 +37,9 @@ class Backpack:
         self.items.remove(discarded_item)
 
 
-# Items:
-potion = Item('Potion', 'Use once to boost HP during battle', 3)
-rock = Item('Rock', 'Use once to damage the opponent during battle', 2)
-pin = Item('Rolling Pin', 'Weapon upgrade', 1)
-new_backpack = Item('New Backpack', 'Increased storage capacity by 1', 0)
+# Declare items. TODO: Add more
+potion = Item('Potion', hp_boost, 3)
+rock = Item('Rock', damage_once, 2)
+pin = Item('Rolling Pin', weapon_upgrade, 1)
+new_backpack = Item('New Backpack', increased_storage, 0)
 items_list = [potion, rock, pin, new_backpack]

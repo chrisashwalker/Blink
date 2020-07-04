@@ -1,33 +1,40 @@
 # Main game program
+import pygame
+import time
+import random
 
-from strings import *
-from saves import *
+from shared import window, window_width, window_height, framerate, text, BLACK, WHITE, soundtrack, tile_width, \
+    tile_height, char_width, char_height, siren, track1, track2, track3, saves_surface, msg_surface, wall_surface, \
+    blink_surface
+from images import title_image, accident0_image, accident1_image, accident2_image, accident3_image, bedclosed_image, \
+    bedopen_image, entrance_image, exit_image, wall1, item_image
+from saves import fetch_all_saves, save_game
+from strings import intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8, intro9, intro10, intro11, intro12, \
+    intro13, intro14, intro15, weapon_upgrade
+from inventory import Backpack, items_list, new_backpack
+from profiles import hero, chase
 from battle import arena
-from inventory import *
-from maps import *
-from profiles import hero
-
-pygame.init()
+from levels import get_level, Level
 
 if __name__ == "__main__":
 
-    # Present the title screen and launch the game by pressing Enter or left-click
-
     title_screen = True
     load_screen = False
+    load_data = True
+    show_intro = False
     save_data = []
     saves_list = []
+    username = ''
     soundtrack.load(track1)
     soundtrack.play(-1)
-    name = ''
-    load_data = True
-    new_game = False
+
+    # Present the title screen and launch the game by pressing Enter or left-click
     while title_screen:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
         pressed_keys = pygame.key.get_pressed()
-        window.blit(title_img, (160, 113))
+        window.blit(title_image, (160, 113))
         pygame.display.flip()
         if pressed_keys[pygame.K_RETURN] or pygame.mouse.get_pressed() == (1, 0, 0):
             soundtrack.stop()
@@ -35,6 +42,8 @@ if __name__ == "__main__":
             pygame.display.flip()
             load_screen = True
             title_screen = False
+
+    # Present the load screen with a list of saved games if they exist
     while load_screen:
         pressed_keys = pygame.key.get_pressed()
         # noinspection PyBroadException
@@ -52,11 +61,15 @@ if __name__ == "__main__":
             saves_surface.blit(ask_load, (50, 20))
             line = 1
             for save in saves_list:
-                print_out = text.render(str(line) + ': ' + save[0] + '     Progress: Map ' + str(save[4]), True, WHITE)
+                print_out = text.render(
+                    str(line) + ': ' + save[0] + '     Progress: Level ' + str(save[1]), True, WHITE)
                 print_out.get_rect(topleft=(50, line * 50))
                 saves_surface.blit(print_out, (50, line * 50))
                 line += 1
             pygame.display.flip()
+
+            # Check for key presses which match the save number and send that save for loading; 0 starts a new game
+            # TODO: Allow for mouse-clicks and lift limit on number of saves
             if pressed_keys[pygame.K_1]:
                 save_data = list(saves_list[0])
                 window.fill(BLACK)
@@ -78,10 +91,12 @@ if __name__ == "__main__":
                 pygame.display.flip()
                 load_screen = False
             if pressed_keys[pygame.K_0]:
-                new_game = False        # Switch back to True when ready
                 load_data = False
+
+        # Start a new game with a new user.
+        # TODO: Consider allowing for save deletions and detecting where a new user already exists in the save database
         else:
-            new_game = False         # Switch back to True when ready
+            show_intro = False         # TODO: Switch back to True to show the intro
             window.blit(saves_surface, (160, 160))
             saves_surface.fill(BLACK)
             ask_name = text.render('Type your name and press Enter', True, WHITE)
@@ -92,23 +107,23 @@ if __name__ == "__main__":
                 if event.type == pygame.QUIT:
                     pygame.quit()
                 if event.type == pygame.KEYDOWN and event.unicode in unicode_string:
-                    name += event.unicode
+                    username += event.unicode
             if pressed_keys[pygame.K_BACKSPACE]:
-                name = name[:-1]
-            display_name = text.render(str.upper(name), True, WHITE)
+                username = username[:-1]
+            display_name = text.render(str.upper(username), True, WHITE)
             display_name.get_rect(topleft=(50, 100))
             saves_surface.blit(display_name, (50, 100))
             pygame.display.flip()
-            if name and pressed_keys[pygame.K_RETURN]:
+            if username and pressed_keys[pygame.K_RETURN]:
                 load_screen = False
 
-    while new_game:
+    while show_intro:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        accident_imgs = (accident0_img, accident1_img, accident2_img, accident3_img)
-        for ai in accident_imgs:
-            window.blit(ai, (160, 0))
+        intro_images = (accident0_image, accident1_image, accident2_image, accident3_image)
+        for image in intro_images:
+            window.blit(image, (160, 0))
             pygame.display.flip()
             time.sleep(2)
         window.fill(BLACK)
@@ -118,66 +133,32 @@ if __name__ == "__main__":
         pygame.display.flip()
         time.sleep(2)
         window.fill(BLACK)
-        window.blit(bedclosed_img, (160, 0))
+        window.blit(bedclosed_image, (160, 0))
         pygame.display.flip()
         time.sleep(4)
-        window.blit(bedopen_img, (160, 0))
+        window.blit(bedopen_image, (160, 0))
         pygame.display.flip()
         time.sleep(2)
         intro_text_rect[0] = 64
         window.fill(BLACK)
         intro_strings = (intro2, intro3, intro4, intro5, intro6, intro7, intro8, intro9, intro10, intro11, intro12,
                          intro13, intro14, intro15)
-        for istring in intro_strings:
-            intro_text = text.render(istring, True, WHITE)
+        for string in intro_strings:
+            intro_text = text.render(string, True, WHITE)
             window.blit(intro_text, (intro_text_rect[0], intro_text_rect[1]))
             pygame.display.flip()
             time.sleep(5)
             window.fill(BLACK)
-        new_game = False
+        show_intro = False
 
-    # Launch game, load save data, if applicable, and set initial variables
-
+    # Launch game, set initial variables and load save data, if applicable.
     run_game = True
-
+    soundtrack.load(track2)
+    soundtrack.play(-1)
     player_inventory = Backpack(None, 3)
     found_items_rects = []
-    if save_data:
-        if save_data[1]:
-            saved_weapon = save_data[1]
-            for item1 in items_list:
-                if item1.item_name == saved_weapon:
-                    player_inventory = Backpack(item1, save_data[2])
-        else:
-            player_inventory = Backpack(None, save_data[2])
-        saved_items = save_data[3].split(',')
-        for item2 in items_list:
-            for saved_item in saved_items:
-                if saved_item == item2.item_name:
-                    player_inventory.items.append(item2)
-        map_id = save_data[4]
-        hero.rect.x = save_data[5]
-        hero.rect.y = save_data[6]
-        saved_found_items = save_data[7].split('.')
-        if saved_found_items[0]:
-            for saved_found_i in saved_found_items:
-                saved_found_i_split = saved_found_i.split(',')
-                if not found_items_rects:
-                    found_items_rects = [pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64)]
-                else:
-                    found_items_rects.append(
-                        pygame.Rect(int(saved_found_i_split[0]), int(saved_found_i_split[1]), 64, 64))
-    else:
-        map_id = 0
-        save_data = [str.upper(name), '', player_inventory.item_capacity, '', map_id, hero.rect.x, hero.rect.y, '']
-
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
-    soundtrack.load(map_tuple[map_id].map_music)
-    soundtrack.play(-1)
     defeated = []
-
-    drawn_map = map_tuple[map_id]
-    drawn_opponents = drawn_map.opponents
     wall_collision_index = -1
     test_hero_x = 0
     test_hero_y = 0
@@ -188,85 +169,116 @@ if __name__ == "__main__":
     blink_timer = 1
     blink_length = 0
     blink_wait_timer = 0
-    blink_wait_length = random.randint(3600, 18000)
+    blink_wait_length = random.randint(1800, 3600)
+
+    if save_data:
+        if save_data[2]:
+            saved_weapon = save_data[2]
+            for item in items_list:
+                if item.item_name == saved_weapon:
+                    player_inventory = Backpack(item, save_data[3])
+        else:
+            player_inventory = Backpack(None, save_data[3])
+
+        saved_items = save_data[4].split(',')
+        for item in items_list:
+            for saved_item in saved_items:
+                if saved_item == item.item_name:
+                    player_inventory.items.append(item)
+
+        level_no = save_data[1]
+        level_type = save_data[6]
+        level_layout = save_data[7]
+        level_coords = get_level(level_layout)
+        current_level = Level(level_no, level_type, level_coords)
+        hero.rect.x = current_level.level_entrance[0] + tile_width
+        hero.rect.y = current_level.level_entrance[1]
+
+        # Build a list of items already found on the level so that reloading doesn't respawn all items
+        saved_found_items = save_data[5].split('.')
+        if saved_found_items[0]:
+            for found_item in saved_found_items:
+                found_item_split = found_item.split(',')
+                if not found_items_rects:
+                    found_items_rects = [
+                        pygame.Rect(int(found_item_split[0]), int(found_item_split[1]), tile_width, tile_height)]
+                else:
+                    found_items_rects.append(
+                        pygame.Rect(int(found_item_split[0]), int(found_item_split[1]), tile_width, tile_height))
+
+    else:
+        level_no = 1
+        current_level = Level()
+        level_layout = current_level.level_layout
+        hero.rect.x = current_level.level_entrance[0] + tile_width
+        hero.rect.y = current_level.level_entrance[1]
+        save_data = [
+            str.upper(username), level_no, '', player_inventory.item_capacity, '', '', current_level.level_type,
+            current_level.level_layout]
 
     # Function to update the screen, with moving characters
-
-    def display_update(dir_x, dir_y, lst_wander, blink_check):
-
+    # TODO: Make display updates more efficient
+    def display_update(direction_x, direction_y, wander, blink_check):
         msg_surface.fill(BLACK)
-        window.blit(map_tuple[map_id].map_background, (0, 0))
-        window.blit(entrance_img, drawn_map_entrance_rect)
-        window.blit(exit_img, drawn_map_exit_rect)
+        window.blit(current_level.level_background, (0, 0))
+        if current_level.level_no > 1:
+            window.blit(entrance_image, pygame.Rect(current_level.level_entrance, (tile_width, tile_height)))
+        window.blit(exit_image, pygame.Rect(current_level.level_exit, (tile_width, tile_height)))
         wall_surface.blit(wall1, (0, 0))
         chase_results = ()
-        for w_rect in drawn_wall_rects:
-            window.blit(wall_surface, w_rect)
-        for item in drawn_map_items:
-            item_rect = pygame.Rect(item, (64, 64))
+        for wall_rect in current_level.wall_rects:
+            window.blit(wall_surface, wall_rect)
+        for level_item in current_level.level_items_pos:
+            item_rect = pygame.Rect(level_item, (tile_width, tile_height))
             if item_rect not in found_items_rects:
-                window.blit(item_img, item_rect)
+                window.blit(item_image, item_rect)
         window.blit(hero.surface, hero.rect)
-        for op in drawn_opponents:
-            chase_results = chase(op.rect[0], op.rect[1], hero.rect.x, hero.rect.y, drawn_wall_rects,
-                                  dir_x, dir_y, lst_wander)
-            new_o_pos = (chase_results[0], chase_results[1])
+        for level_opponent in current_level.opponents:
+            chase_results = chase(level_opponent.rect[0], level_opponent.rect[1], hero.rect.x, hero.rect.y,
+                                  current_level.wall_rects, direction_x, direction_y, wander)
+            new_opponent_pos = (chase_results[0], chase_results[1])
             if blink_check:
                 blink_surface.set_alpha(100)
-                if op not in defeated:
-                    op.rect = pygame.Rect(new_o_pos, (64, 64))
-                    window.blit(op.surface, op.rect)
+                if opponent not in defeated:
+                    opponent.rect = pygame.Rect(new_opponent_pos, (char_width, char_height))
+                    window.blit(opponent.surface, opponent.rect)
             else:
                 blink_surface.set_alpha(0)
         window.blit(blink_surface, (0, 0))
         pygame.display.flip()
-        return chase_results[2], chase_results[3], chase_results[4]
+        if len(chase_results) > 0:
+            return chase_results[2], chase_results[3], chase_results[4]
+        else:
+            return 0, 0, 0
 
+    # Main game loop
     while run_game:
 
         framerate.tick(60)
         hero.speed = 5
 
         # Listen for the window being closed and quit the game
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run_game = False
 
         # Check what key is pressed in the current iteration of the game loop
-
         pressed_keys = pygame.key.get_pressed()
         mouse_pos = pygame.mouse.get_pos()
 
         # Redraw the map, characters and objects in each loop, to pick up changes
-
-        drawn_map = map_tuple[map_id]
-        drawn_wall_rects = drawn_map.wall_rects
-        drawn_map_entrance = drawn_map.map_entrance
-        drawn_map_exit = drawn_map.map_exit
-        if drawn_map_entrance is None:
-            drawn_map_entrance_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            drawn_map_entrance_rect = pygame.Rect(drawn_map_entrance[0], drawn_map_entrance[1], 64, 64)
-        if drawn_map_exit is None:
-            drawn_map_exit_rect = pygame.Rect(-64, -64, 0, 0)
-        else:
-            drawn_map_exit_rect = pygame.Rect(drawn_map_exit[0], drawn_map_exit[1], 64, 64)
-        drawn_map_items = drawn_map.map_items_pos
-
         last_direction_x = display_update(last_direction_x, last_direction_y, last_wander, blink)[0]
         last_direction_y = display_update(last_direction_x, last_direction_y, last_wander, blink)[1]
         last_wander = display_update(last_direction_x, last_direction_y, last_wander, blink)[2]
 
-        # Run 'blinks' randomly, which activate/deactivate opponent spawns
-
+        # Run 'blinks' randomly, which activate/deactivate opponent characters
         if blink_timer <= blink_length and blink_wait_timer > blink_wait_length:
             blink = True
             blink_timer += 1
         elif blink_timer > blink_length and blink_wait_timer > blink_wait_length:
             blink = True
             blink_wait_timer = 0
-            blink_wait_length = random.randint(3600, 9000)
+            blink_wait_length = random.randint(1800, 3600)
             window.fill((255, 255, 255))
             pygame.display.flip()
             time.sleep(0.5)
@@ -274,7 +286,7 @@ if __name__ == "__main__":
         elif blink_timer > blink_length and blink_wait_timer == blink_wait_length:
             blink = False
             blink_timer = 0
-            blink_length = random.randint(3600, 18000)
+            blink_length = random.randint(3600, 7200)
             blink_wait_timer += 1
             window.fill((255, 255, 255))
             pygame.display.flip()
@@ -286,8 +298,7 @@ if __name__ == "__main__":
             blink = False
             blink_wait_timer += 1
 
-        # Check for keyboard input and test the proposed movement fits the boundaries of the window and map wall layout
-
+        # Check for keyboard input and test the proposed movement fits the boundaries of the window and wall layout
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or \
                 pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]:
             while hero.speed > 0:
@@ -304,7 +315,7 @@ if __name__ == "__main__":
                     test_hero_x = hero.rect.x
                     test_hero_y = hero.rect.y + hero.speed
                 wall_collision_index = pygame.Rect(
-                    test_hero_x, test_hero_y, hero.width, hero.height).collidelist(drawn_wall_rects)
+                    test_hero_x, test_hero_y, hero.width, hero.height).collidelist(current_level.wall_rects)
                 if wall_collision_index == -1:
                     if pressed_keys[pygame.K_LEFT] and hero.rect.x - hero.speed >= 0:
                         hero.rect.x -= hero.speed
@@ -323,56 +334,60 @@ if __name__ == "__main__":
                 else:
                     hero.speed -= 1
 
-            # Check for map changes and save the game automatically
+            # Check for level changes and save the game automatically
+            # TODO: Tidy code, build in entrance travel and store past level layouts
+            if pygame.Rect(current_level.level_exit, (tile_width, tile_height)).colliderect(hero.rect):
+                level_no += 1
+                current_level = Level(level_no)
+                level_type = current_level.level_type
+                hero.rect.x = tile_width
+                hero.rect.y = current_level.level_entrance[1]
+                level_layout = current_level.level_layout
+                save_data[1] = level_no
+                save_data[6] = level_type
+                save_data[7] = level_layout
 
-            old_map_id = map_id
-            map_id, hero.rect.x, hero.rect.y, new_opponents = map_change_check(
-                hero, map_id, drawn_map_entrance_rect, drawn_map_exit_rect)
-            if map_id != old_map_id:
                 if player_inventory.held_weapon:
-                    save_data[1] = player_inventory.held_weapon.item_name
-                save_data[2] = player_inventory.item_capacity
+                    save_data[2] = player_inventory.held_weapon.item_name
+                save_data[3] = player_inventory.item_capacity
                 inventory_items = ''
-                for item3 in player_inventory.items:
+                for inventory_item in player_inventory.items:
                     if inventory_items == '':
-                        inventory_items = item3.item_name
+                        inventory_items = inventory_item.item_name
                     else:
-                        inventory_items += ',' + item3.item_name
-                save_data[3] = inventory_items
-                save_data[4] = map_id
-                save_data[5] = hero.rect.x
-                save_data[6] = hero.rect.y
+                        inventory_items += ',' + inventory_item.item_name
+                save_data[4] = inventory_items
+
                 found_items = ''
-                for item4 in found_items_rects:
+                for found_item in found_items_rects:
                     if found_items == '':
-                        found_items = str(item4[0]) + ',' + str(item4[1])
+                        found_items = str(found_item[0]) + ',' + str(found_item[1])
                     else:
-                        found_items += '.' + str(item4[0]) + ',' + str(item4[1])
-                save_data[7] = found_items
+                        found_items += '.' + str(found_item[0]) + ',' + str(found_item[1])
+                save_data[5] = found_items
+
                 save_game(
                     save_data[0], save_data[1], save_data[2], save_data[3],
                     save_data[4], save_data[5], save_data[6], save_data[7])
-                drawn_opponents = new_opponents
-                display_update(last_direction_x, last_direction_y, last_wander, blink)
 
         # Check for collisions between player and opponents to start a battle
-
         if blink:
-            for op_test in drawn_opponents:
-                if hero.rect.colliderect(op_test.rect) and op_test not in defeated:
-                    defeated.append(op_test)
+            for opponent in current_level.opponents:
+                if hero.rect.colliderect(opponent.rect) and opponent not in defeated:
+                    time.sleep(1)
+                    defeated.append(opponent)
                     soundtrack.stop()
                     soundtrack.load(track3)
                     soundtrack.set_volume(0.4)
                     soundtrack.play(-1)
-                    run_game = arena(hero, op_test, player_inventory)
+                    run_game = arena(hero, opponent, player_inventory)
                     soundtrack.stop()
                     soundtrack.set_volume(0.9)
-                    soundtrack.load(drawn_map.map_music)
+                    soundtrack.load(current_level.level_music)
                     soundtrack.play(-1)
 
         # Item pickup and storage handling
-
+        # TODO: Tidy code
         i0 = min(0, len(player_inventory.items) - 1)
         i1 = min(1, len(player_inventory.items) - 1)
         i2 = min(2, len(player_inventory.items) - 1)
@@ -381,7 +396,7 @@ if __name__ == "__main__":
         i5 = min(5, len(player_inventory.items) - 1)
         backpack_add_once = True
 
-        for item_test in drawn_map_items:
+        for item_test in current_level.level_items_pos:
             item_test_rect = pygame.Rect(item_test, (64, 64))
             if hero.rect.colliderect(item_test_rect) and item_test_rect not in found_items_rects:
                 item_wait = True
@@ -403,7 +418,7 @@ if __name__ == "__main__":
                         found_item_text = text.render(
                             'You found a ' + random_item.item_name + '. ' + random_item.item_type, True, WHITE)
 
-                    elif random_item.item_type == 'Weapon upgrade':
+                    elif random_item.item_type == weapon_upgrade:
                         if player_inventory.held_weapon is not None:
                             weapon_power = player_inventory.held_weapon.item_power
                         else:
@@ -421,7 +436,7 @@ if __name__ == "__main__":
                                 pygame.mouse.get_pressed() == (1, 0, 0):
                             player_inventory.held_weapon = random_item
 
-                    elif random_item.item_name != 'New Backpack' and random_item.item_type != 'Weapon upgrade' and \
+                    elif random_item.item_name != 'New Backpack' and random_item.item_type != weapon_upgrade and \
                             len(player_inventory.items) < player_inventory.item_capacity:
                         found_item_text = text.render('You found a ' + random_item.item_name + ' (power lvl: ' + str(
                             random_item.item_power) + '). Add it to your inventory?', True, WHITE)
