@@ -22,7 +22,7 @@ class Character:
         self.rect = self.surface.get_rect()
 
 
-hero = Character('Hero', 10, 2, 5)
+hero = Character('Hero', 10, 2, 4)
 
 
 # Opponents chase the player when visibility line is not obscured by walls; otherwise, randomly wander around the map
@@ -53,7 +53,7 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
             new_y = opponent_y - 1
         else:
             new_y = opponent_y + 1
-        return new_x, new_y, direction_x, direction_y, last_wander
+        return new_x, new_y, direction_x, direction_y, int(last_wander)
 
     # Wander around the map, once every 2 seconds, avoiding walls and screen boundaries
     elif wander_change > last_wander + 2 and pygame.Rect(
@@ -65,8 +65,8 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
             opponent_y + direction_y >= 0:
         opponent_x += direction_x
         opponent_y += direction_y
-        return opponent_x, opponent_y, direction_x, direction_y, last_wander
+        return opponent_x, opponent_y, direction_x, direction_y, int(last_wander)
 
     # If the opponent can't see the player and it isn't time to wander yet, just return the last results
     else:
-        return opponent_x, opponent_y, direction_x, direction_y, last_wander
+        return opponent_x, opponent_y, direction_x, direction_y, int(last_wander)

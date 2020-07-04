@@ -19,7 +19,7 @@ def get_level(level_layout):
 
 # Design levels either randomly or based on defined layout arguments
 class Level:
-    def __init__(self, level_no=1, level_type=1, level_coords=None):
+    def __init__(self, level_no=1, level_type=1, level_coords=None, wall_freq=10, opponent_freq=100, item_freq=1000):
 
         # Define level types with set backgrounds, wall graphics and music
         # TODO: Make more and define set level layouts for special areas and boss battles
@@ -51,7 +51,12 @@ class Level:
             # Draw a clear path from entrance to exit
             entrance_x = 0
             entrance_y = random.randint(0, 9)
-            clear_path = {(entrance_x, entrance_y * tile_height), (entrance_x + tile_width, entrance_y * tile_height)}
+            clear_path = {(entrance_x, entrance_y * tile_height),
+                          (entrance_x + tile_width, entrance_y * tile_height),
+                          (entrance_x + tile_width, entrance_y * tile_height + tile_height),
+                          (entrance_x + tile_width, entrance_y * tile_height - tile_height),
+                          (entrance_x, entrance_y * tile_height + tile_height),
+                          (entrance_x, entrance_y * tile_height - tile_height)}
             next_path_x = entrance_x
             next_path_y = entrance_y
             while next_path_x < 14:
@@ -76,18 +81,18 @@ class Level:
             # Add the results to a level_layout string so that it can be stored in the game save database and redrawn
             for coord in self.level_coords:
                 if coord not in clear_path:
-                    wall_gamble = random.randint(1, 10)
-                    item_gamble = random.randint(1, 500)
-                    opponent_gamble = random.randint(1, 50)
-                    if item_gamble == 500:
-                        self.level_items_pos.append(coord)
-                        self.level_coords[coord] = 'I'
-                    elif opponent_gamble == 50:
-                        opponents_pos.append(coord)
-                        self.level_coords[coord] = 'O'
-                    elif wall_gamble == 10:
+                    wall_gamble = random.randint(1, wall_freq)
+                    opponent_gamble = random.randint(1, opponent_freq)
+                    item_gamble = random.randint(1, item_freq)
+                    if wall_gamble == 1:
                         self.wall_rects.append(pygame.Rect(coord, (tile_width, tile_height)))
                         self.level_coords[coord] = 'X'
+                    elif opponent_gamble == 1:
+                        opponents_pos.append(coord)
+                        self.level_coords[coord] = 'O'
+                    elif item_gamble == 1:
+                        self.level_items_pos.append(coord)
+                        self.level_coords[coord] = 'I'
                 self.level_layout += self.level_coords[coord]
 
         # The level layout has been saved, so it should be redrawn upon game load
@@ -113,6 +118,6 @@ class Level:
         for opponent_pos in opponents_pos:
             opponent_type = random.randint(1, 3)
             opponent_id += 1
-            self.opponents.append(Character('Enemy' + str(opponent_type), 5, 1, 5))
+            self.opponents.append(Character('Enemy' + str(opponent_type), 10, 3, 4))
             self.opponents[opponent_id].rect.x = opponent_pos[0]
             self.opponents[opponent_id].rect.y = opponent_pos[1]

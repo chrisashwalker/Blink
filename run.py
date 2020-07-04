@@ -4,8 +4,7 @@ import time
 import random
 
 from shared import window, window_width, window_height, framerate, text, BLACK, WHITE, soundtrack, tile_width, \
-    tile_height, char_width, char_height, siren, track1, track2, track3, saves_surface, msg_surface, wall_surface, \
-    blink_surface
+    tile_height, track1, track2, track3, saves_surface, msg_surface, wall_surface, blink_surface  # ,siren
 from images import title_image, accident0_image, accident1_image, accident2_image, accident3_image, bedclosed_image, \
     bedopen_image, entrance_image, exit_image, wall1, item_image
 from saves import fetch_all_saves, save_game
@@ -160,16 +159,17 @@ if __name__ == "__main__":
     msg_surface_rect = msg_surface.get_rect(topleft=(80, 170))
     defeated = []
     wall_collision_index = -1
+    last_move = 0
     test_hero_x = 0
     test_hero_y = 0
     last_direction_x = 0
     last_direction_y = 0
     last_wander = 0
     blink = False
-    blink_timer = 1
-    blink_length = 0
-    blink_wait_timer = 0
-    blink_wait_length = random.randint(1800, 3600)
+    # blink_timer = 1
+    # blink_length = 0
+    # blink_wait_timer = 0
+    # blink_wait_length = random.randint(1800, 3600)
 
     if save_data:
         if save_data[2]:
@@ -233,17 +233,17 @@ if __name__ == "__main__":
             if item_rect not in found_items_rects:
                 window.blit(item_image, item_rect)
         window.blit(hero.surface, hero.rect)
-        for level_opponent in current_level.opponents:
-            chase_results = chase(level_opponent.rect[0], level_opponent.rect[1], hero.rect.x, hero.rect.y,
-                                  current_level.wall_rects, direction_x, direction_y, wander)
-            new_opponent_pos = (chase_results[0], chase_results[1])
-            if blink_check:
-                blink_surface.set_alpha(100)
-                if opponent not in defeated:
-                    opponent.rect = pygame.Rect(new_opponent_pos, (char_width, char_height))
-                    window.blit(opponent.surface, opponent.rect)
-            else:
-                blink_surface.set_alpha(0)
+        if blink_check:
+            for level_opponent in current_level.opponents:
+                chase_results = chase(level_opponent.rect[0], level_opponent.rect[1], hero.rect.x, hero.rect.y,
+                                      current_level.wall_rects, direction_x, direction_y, wander)
+                if level_opponent not in defeated:
+                    level_opponent.rect.x = chase_results[0]
+                    level_opponent.rect.y = chase_results[1]
+                    window.blit(level_opponent.surface, level_opponent.rect)
+            blink_surface.set_alpha(100)
+        else:
+            blink_surface.set_alpha(0)
         window.blit(blink_surface, (0, 0))
         pygame.display.flip()
         if len(chase_results) > 0:
@@ -251,11 +251,36 @@ if __name__ == "__main__":
         else:
             return 0, 0, 0
 
+    def display_update_no_chase(blink_check):
+        msg_surface.fill(BLACK)
+        window.blit(current_level.level_background, (0, 0))
+        if current_level.level_no > 1:
+            window.blit(entrance_image, pygame.Rect(current_level.level_entrance, (tile_width, tile_height)))
+        window.blit(exit_image, pygame.Rect(current_level.level_exit, (tile_width, tile_height)))
+        wall_surface.blit(wall1, (0, 0))
+        chase_results = ()
+        for wall_rect in current_level.wall_rects:
+            window.blit(wall_surface, wall_rect)
+        for level_item in current_level.level_items_pos:
+            item_rect = pygame.Rect(level_item, (tile_width, tile_height))
+            if item_rect not in found_items_rects:
+                window.blit(item_image, item_rect)
+        window.blit(hero.surface, hero.rect)
+        if blink_check:
+            for level_opponent in current_level.opponents:
+                if level_opponent not in defeated:
+                    window.blit(level_opponent.surface, level_opponent.rect)
+            blink_surface.set_alpha(100)
+        else:
+            blink_surface.set_alpha(0)
+        window.blit(blink_surface, (0, 0))
+        pygame.display.flip()
+
     # Main game loop
     while run_game:
 
         framerate.tick(60)
-        hero.speed = 5
+        hero.speed = 4
 
         # Listen for the window being closed and quit the game
         for event in pygame.event.get():
@@ -272,67 +297,73 @@ if __name__ == "__main__":
         last_wander = display_update(last_direction_x, last_direction_y, last_wander, blink)[2]
 
         # Run 'blinks' randomly, which activate/deactivate opponent characters
-        if blink_timer <= blink_length and blink_wait_timer > blink_wait_length:
-            blink = True
-            blink_timer += 1
-        elif blink_timer > blink_length and blink_wait_timer > blink_wait_length:
-            blink = True
-            blink_wait_timer = 0
-            blink_wait_length = random.randint(1800, 3600)
-            window.fill((255, 255, 255))
-            pygame.display.flip()
-            time.sleep(0.5)
-            soundtrack.play(-1)
-        elif blink_timer > blink_length and blink_wait_timer == blink_wait_length:
-            blink = False
-            blink_timer = 0
-            blink_length = random.randint(3600, 7200)
-            blink_wait_timer += 1
-            window.fill((255, 255, 255))
-            pygame.display.flip()
-            time.sleep(0.5)
-        elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
-            if blink_wait_timer + 750 == blink_wait_length:
-                soundtrack.stop()
-                siren.play(2)
-            blink = False
-            blink_wait_timer += 1
+        # TODO: Deactivate level change blink choice, activate this, blink variables and shared.siren if still wanted
+        # if blink_timer <= blink_length and blink_wait_timer > blink_wait_length:
+        #     blink = True
+        #     blink_timer += 1
+        # elif blink_timer > blink_length and blink_wait_timer > blink_wait_length:
+        #     blink = True
+        #     blink_wait_timer = 0
+        #     blink_wait_length = random.randint(1800, 3600)
+        #     window.fill((255, 255, 255))
+        #     pygame.display.flip()
+        #     time.sleep(0.5)
+        #     soundtrack.play(-1)
+        # elif blink_timer > blink_length and blink_wait_timer == blink_wait_length:
+        #     blink = False
+        #     blink_timer = 0
+        #     blink_length = random.randint(3600, 7200)
+        #     blink_wait_timer += 1
+        #     window.fill((255, 255, 255))
+        #     pygame.display.flip()
+        #     time.sleep(0.5)
+        # elif blink_timer > blink_length and blink_wait_timer < blink_wait_length:
+        #     if blink_wait_timer + 750 == blink_wait_length:
+        #         soundtrack.stop()
+        #         siren.play(2)
+        #     blink = False
+        #     blink_wait_timer += 1
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and wall layout
-        if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or \
-                pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]:
-            while hero.speed > 0:
-                if pressed_keys[pygame.K_LEFT]:
-                    test_hero_x = hero.rect.x - hero.speed
-                    test_hero_y = hero.rect.y
-                if pressed_keys[pygame.K_RIGHT]:
-                    test_hero_x = hero.rect.x + hero.speed
-                    test_hero_y = hero.rect.y
-                if pressed_keys[pygame.K_UP]:
-                    test_hero_x = hero.rect.x
-                    test_hero_y = hero.rect.y - hero.speed
-                if pressed_keys[pygame.K_DOWN]:
-                    test_hero_x = hero.rect.x
-                    test_hero_y = hero.rect.y + hero.speed
-                wall_collision_index = pygame.Rect(
-                    test_hero_x, test_hero_y, hero.width, hero.height).collidelist(current_level.wall_rects)
-                if wall_collision_index == -1:
-                    if pressed_keys[pygame.K_LEFT] and hero.rect.x - hero.speed >= 0:
+        # TODO: Tidy and fix double-press wall overlap
+        if time.time() - last_move > 0.1 and (pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or
+                                                pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]):
+            if pressed_keys[pygame.K_LEFT]:
+                test_hero_x = hero.rect.x - hero.width
+                test_hero_y = hero.rect.y
+            if pressed_keys[pygame.K_RIGHT]:
+                test_hero_x = hero.rect.x + hero.width
+                test_hero_y = hero.rect.y
+            if pressed_keys[pygame.K_UP]:
+                test_hero_x = hero.rect.x
+                test_hero_y = hero.rect.y - hero.height
+            if pressed_keys[pygame.K_DOWN]:
+                test_hero_x = hero.rect.x
+                test_hero_y = hero.rect.y + hero.height
+            wall_collision_index = pygame.Rect(
+                test_hero_x, test_hero_y, hero.width, hero.height).collidelist(current_level.wall_rects)
+            if wall_collision_index == -1:
+                if pressed_keys[pygame.K_LEFT] and hero.rect.x - hero.width >= 0:
+                    while (hero.rect.x - hero.speed) % hero.width != 0:
                         hero.rect.x -= hero.speed
-                        break
-                    elif pressed_keys[pygame.K_RIGHT] and hero.rect.x + hero.width + hero.speed <= window_width:
+                        display_update_no_chase(blink)
+                    hero.rect.x -= hero.speed
+                elif pressed_keys[pygame.K_RIGHT] and hero.rect.x + hero.width * 2 <= window_width:
+                    while (hero.rect.x + hero.speed) % hero.width != 0:
                         hero.rect.x += hero.speed
-                        break
-                    elif pressed_keys[pygame.K_UP] and hero.rect.y - hero.speed >= 0:
+                        display_update_no_chase(blink)
+                    hero.rect.x += hero.speed
+                elif pressed_keys[pygame.K_UP] and hero.rect.y - hero.height >= 0:
+                    while (hero.rect.y - hero.speed) % hero.height != 0:
                         hero.rect.y -= hero.speed
-                        break
-                    elif pressed_keys[pygame.K_DOWN] and hero.rect.y + hero.height + hero.speed <= window_height:
+                        display_update_no_chase(blink)
+                    hero.rect.y -= hero.speed
+                elif pressed_keys[pygame.K_DOWN] and hero.rect.y + hero.height * 2 <= window_height:
+                    while (hero.rect.y + hero.speed) % hero.height != 0:
                         hero.rect.y += hero.speed
-                        break
-                    else:
-                        hero.speed -= 1
-                else:
-                    hero.speed -= 1
+                        display_update_no_chase(blink)
+                    hero.rect.y += hero.speed
+            last_move = time.time()
 
             # Check for level changes and save the game automatically
             # TODO: Tidy code, build in entrance travel and store past level layouts
@@ -346,6 +377,7 @@ if __name__ == "__main__":
                 save_data[1] = level_no
                 save_data[6] = level_type
                 save_data[7] = level_layout
+                blink = random.choice([True, False])
 
                 if player_inventory.held_weapon:
                     save_data[2] = player_inventory.held_weapon.item_name
