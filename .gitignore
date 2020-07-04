@@ -131,8 +131,10 @@ dmypy.json
 
 #Blink specific
 .idea/
-images/
-music/
+archive/
+graphics/
+sounds/
+images.py
 strings.py
 story.txt
 game_saves.db
