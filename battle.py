@@ -81,7 +81,7 @@ def arena(player, opponent, player_inventory):
                 while i > 1:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
-                            pygame.quit()
+                            return False
                     pressed_keys = pygame.key.get_pressed()
 
                     if pressed_keys[pygame.K_0]:
@@ -177,7 +177,7 @@ def end_battle(winner, player_stat):
     while loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                return False
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_RETURN] or pygame.mouse.get_pressed() == (1, 0, 0):
             loop = False
