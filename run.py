@@ -27,6 +27,8 @@ if __name__ == "__main__":
         username = ''
         soundtrack.load(track1)
         soundtrack.play(-1)
+        recovery_count = 0
+        hit_count = 10
 
         # Present the title screen and launch the game by pressing Enter or left-click
         while title_screen:
@@ -430,21 +432,39 @@ if __name__ == "__main__":
                         save_data[0], save_data[1], save_data[2], save_data[3],
                         save_data[4], save_data[5], save_data[6], save_data[7])
 
-            # Check for collisions between player and opponents to start a battle
+            # Check for collisions between player and opponents to start a battle or a fight
             if blink:
                 for opponent in current_level.opponents:
                     if hero.rect.colliderect(opponent.rect) and opponent not in defeated:
-                        time.sleep(1)
-                        defeated.append(opponent)
-                        soundtrack.stop()
-                        soundtrack.load(track3)
-                        soundtrack.set_volume(0.4)
-                        soundtrack.play(-1)
-                        run_game = arena(hero, opponent, player_inventory)
-                        soundtrack.stop()
-                        soundtrack.set_volume(0.9)
-                        soundtrack.load(current_level.level_music)
-                        soundtrack.play(-1)
+                        if opponent.name not in ['Enemy1', 'Enemy2']:
+                            time.sleep(1)
+                            defeated.append(opponent)
+                            soundtrack.stop()
+                            soundtrack.load(track3)
+                            soundtrack.set_volume(0.4)
+                            soundtrack.play(-1)
+                            run_game = arena(hero, opponent, player_inventory)
+                            soundtrack.stop()
+                            soundtrack.set_volume(0.9)
+                            soundtrack.load(current_level.level_music)
+                            soundtrack.play(-1)
+                        else:
+                            if time.time() > recovery_count + 7:
+                                recovery_count = time.time()
+                                hit_count = hero.health
+                            hit_count -= opponent.strength / 50
+                            if pressed_keys[pygame.K_SPACE]:
+                                opponent.health -= hero.strength
+                                hit_count += opponent.strength
+                                if hit_count > hero.health:
+                                    hit_count = hero.health
+
+            for lvl_opponent in current_level.opponents:
+                if lvl_opponent.health < 1:
+                    defeated.append(lvl_opponent)
+
+            if hit_count < 1:
+                run_game = False
 
             # Item pickup and storage handling
             # TODO: New - needs tidying
