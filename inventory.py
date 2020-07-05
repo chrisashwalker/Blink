@@ -37,7 +37,7 @@ class Backpack:
         self.items.remove(discarded_item)
 
 
-# Declare items. TODO: Add more
+# Declare items. TODO: Add more and make some level-specific
 potion = Item('Potion', hp_boost, 3)
 rock = Item('Rock', damage_once, 2)
 pin = Item('Rolling Pin', weapon_upgrade, 1)

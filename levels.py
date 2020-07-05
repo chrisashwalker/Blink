@@ -19,7 +19,7 @@ def get_level(level_layout):
 
 # Design levels either randomly or based on defined layout arguments
 class Level:
-    def __init__(self, level_no=1, level_type=1, level_coords=None, wall_freq=10, opponent_freq=100, item_freq=1000):
+    def __init__(self, level_no=1, level_type=1, level_coords=None, wall_freq=5, opponent_freq=75, item_freq=1200):
 
         # Define level types with set backgrounds, wall graphics and music
         # TODO: Make more and define set level layouts for special areas and boss battles
@@ -60,15 +60,14 @@ class Level:
             next_path_x = entrance_x
             next_path_y = entrance_y
             while next_path_x < 14:
+                last_path_x = next_path_x
                 next_path_x += random.randint(0, 1)
-                if next_path_x == next_path_x:
+                if next_path_x == last_path_x:
                     next_path_y = next_path_y + random.choice([-1, 1])
                     if next_path_y < 0:
                         next_path_y += 2
                     elif next_path_y > 9:
                         next_path_y -= 1
-                else:
-                    next_path_y = next_path_y + 1
                 clear_path.add((next_path_x * tile_width, next_path_y * tile_height))
             exit_x = next_path_x
             exit_y = next_path_y

@@ -160,6 +160,7 @@ if __name__ == "__main__":
     defeated = []
     wall_collision_index = -1
     last_move = 0
+    move = ''
     test_hero_x = 0
     test_hero_y = 0
     last_direction_x = 0
@@ -258,7 +259,6 @@ if __name__ == "__main__":
             window.blit(entrance_image, pygame.Rect(current_level.level_entrance, (tile_width, tile_height)))
         window.blit(exit_image, pygame.Rect(current_level.level_exit, (tile_width, tile_height)))
         wall_surface.blit(wall1, (0, 0))
-        chase_results = ()
         for wall_rect in current_level.wall_rects:
             window.blit(wall_surface, wall_rect)
         for level_item in current_level.level_items_pos:
@@ -325,48 +325,53 @@ if __name__ == "__main__":
         #     blink_wait_timer += 1
 
         # Check for keyboard input and test the proposed movement fits the boundaries of the window and wall layout
-        # TODO: Tidy and fix double-press wall overlap
+        # TODO: New - needs tidying
         if time.time() - last_move > 0.1 and (pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_RIGHT] or
-                                                pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]):
+                                              pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_DOWN]):
             if pressed_keys[pygame.K_LEFT]:
+                move = 'left'
                 test_hero_x = hero.rect.x - hero.width
                 test_hero_y = hero.rect.y
             if pressed_keys[pygame.K_RIGHT]:
+                move = 'right'
                 test_hero_x = hero.rect.x + hero.width
                 test_hero_y = hero.rect.y
             if pressed_keys[pygame.K_UP]:
+                move = 'up'
                 test_hero_x = hero.rect.x
                 test_hero_y = hero.rect.y - hero.height
             if pressed_keys[pygame.K_DOWN]:
+                move = 'down'
                 test_hero_x = hero.rect.x
                 test_hero_y = hero.rect.y + hero.height
             wall_collision_index = pygame.Rect(
                 test_hero_x, test_hero_y, hero.width, hero.height).collidelist(current_level.wall_rects)
             if wall_collision_index == -1:
-                if pressed_keys[pygame.K_LEFT] and hero.rect.x - hero.width >= 0:
+                if move == 'left' and hero.rect.x - hero.width >= 0:
                     while (hero.rect.x - hero.speed) % hero.width != 0:
                         hero.rect.x -= hero.speed
                         display_update_no_chase(blink)
                     hero.rect.x -= hero.speed
-                elif pressed_keys[pygame.K_RIGHT] and hero.rect.x + hero.width * 2 <= window_width:
+                elif move == 'right' and hero.rect.x + hero.width * 2 <= window_width:
                     while (hero.rect.x + hero.speed) % hero.width != 0:
                         hero.rect.x += hero.speed
                         display_update_no_chase(blink)
                     hero.rect.x += hero.speed
-                elif pressed_keys[pygame.K_UP] and hero.rect.y - hero.height >= 0:
+                elif move == 'up' and hero.rect.y - hero.height >= 0:
                     while (hero.rect.y - hero.speed) % hero.height != 0:
                         hero.rect.y -= hero.speed
                         display_update_no_chase(blink)
                     hero.rect.y -= hero.speed
-                elif pressed_keys[pygame.K_DOWN] and hero.rect.y + hero.height * 2 <= window_height:
+                elif move == 'down' and hero.rect.y + hero.height * 2 <= window_height:
                     while (hero.rect.y + hero.speed) % hero.height != 0:
                         hero.rect.y += hero.speed
                         display_update_no_chase(blink)
                     hero.rect.y += hero.speed
+            move = ''
             last_move = time.time()
 
             # Check for level changes and save the game automatically
-            # TODO: Tidy code, build in entrance travel and store past level layouts
+            # TODO: New - needs tidying; build in entrance travel and store past level layouts
             if pygame.Rect(current_level.level_exit, (tile_width, tile_height)).colliderect(hero.rect):
                 level_no += 1
                 current_level = Level(level_no)
@@ -419,7 +424,7 @@ if __name__ == "__main__":
                     soundtrack.play(-1)
 
         # Item pickup and storage handling
-        # TODO: Tidy code
+        # TODO: New - needs tidying
         i0 = min(0, len(player_inventory.items) - 1)
         i1 = min(1, len(player_inventory.items) - 1)
         i2 = min(2, len(player_inventory.items) - 1)
