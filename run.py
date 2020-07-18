@@ -436,7 +436,7 @@ if __name__ == "__main__":
             if blink:
                 for opponent in current_level.opponents:
                     if hero.rect.colliderect(opponent.rect) and opponent not in defeated:
-                        if opponent.name not in ['Enemy1', 'Enemy2']:
+                        if opponent.name not in ['Enemy1', 'Enemy2', 'Enemy3']:
                             time.sleep(1)
                             defeated.append(opponent)
                             soundtrack.stop()

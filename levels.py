@@ -115,7 +115,7 @@ class Level:
 
         # Create instances of the opponent characters based on drawn opponent positions
         for opponent_pos in opponents_pos:
-            opponent_type = random.randint(1, 3)
+            opponent_type = random.randint(1, 7)
             opponent_id += 1
             self.opponents.append(Character('Enemy' + str(opponent_type), 10, 3, 4))
             self.opponents[opponent_id].rect.x = opponent_pos[0]
