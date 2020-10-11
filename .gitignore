@@ -129,12 +129,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#Blink specific
+# Blink
+__pycache__/
 .idea/
 archive/
 graphics/
 sounds/
-images.py
-strings.py
-story.txt
 game_saves.db
+images.py
+story.txt
+strings.py
