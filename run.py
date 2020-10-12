@@ -55,7 +55,6 @@ if __name__ == "__main__":
         # Present the load screen with a list of saved games if they exist
         while load_screen:
             pressed_keys = pygame.key.get_pressed()
-            # noinspection PyBroadException
             try:
                 saves_list = fetch_all_saves()
             except Exception:

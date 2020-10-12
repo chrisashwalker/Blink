@@ -3,12 +3,11 @@ import pygame
 import random
 import time
 
-from shared import window_width, window_height, char_width, char_height, trans_surface
+from shared import window_width, window_height, char_width, char_height, trans_surface, graphics_folder
 
 
 class Character:
     def __init__(self, name, health, strength, speed):
-        # noinspection PyCallByClass,PyTypeChecker
         pygame.sprite.Sprite.__init__(self)
         self.name = name
         self.health = health
@@ -17,7 +16,7 @@ class Character:
 
         self.width = char_width
         self.height = char_height
-        self.image = os.path.join('graphics', (self.name + '.png'))
+        self.image = os.path.join(graphics_folder, (self.name + '.png'))
         self.surface = pygame.image.load(self.image).convert_alpha()
         self.rect = self.surface.get_rect()
 

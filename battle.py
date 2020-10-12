@@ -61,7 +61,8 @@ def arena(player, opponent, player_inventory):
                 hit.play()
                 time.sleep(0.5)
 
-        # Item use handling. TODO: Improve item listing and usage
+        # Item use handling. 
+        # TODO: Improve item listing and usage
         if use_item_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed() == (1, 0, 0):
             item_list_text = ''
             i = 1

@@ -5,7 +5,6 @@ from strings import hp_boost, damage_once, weapon_upgrade, increased_storage
 
 class Item:
     def __init__(self, item_name, item_type, item_power):
-        # noinspection PyCallByClass,PyTypeChecker
         pygame.sprite.Sprite.__init__(self)
         self.item_name = item_name
         self.item_type = item_type
@@ -37,7 +36,8 @@ class Backpack:
         self.items.remove(discarded_item)
 
 
-# Declare items. TODO: Add more and make some level-specific
+# Declare items. 
+# TODO: Add more and make some level-specific
 potion = Item('Potion', hp_boost, 3)
 rock = Item('Rock', damage_once, 2)
 pin = Item('Rolling Pin', weapon_upgrade, 1)
