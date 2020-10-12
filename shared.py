@@ -20,17 +20,15 @@ char_width = 64
 char_height = 64
 
 # TODO: Consider cutting down on no. of surfaces
-saves_surface = pygame.Surface((800, 400))
-intro_surface = pygame.Surface((960, 640))
+intro_surface = pygame.Surface((window_width, window_height))
 intro_surface.fill((0, 0, 0))
-blink_surface = pygame.Surface((960, 640))
+blink_surface = pygame.Surface((window_width, window_height))
 blink_surface.fill((0, 0, 0))
 blink_surface.set_alpha(0)
-trans_surface = pygame.Surface((960, 640))
+trans_surface = pygame.Surface((window_width, window_height))
 trans_surface.set_alpha(0)
 msg_surface = pygame.Surface((800, 400))
-wall_surface = pygame.Surface((64, 64))
-items_surface = pygame.Surface((64, 64))
+wall_surface = pygame.Surface((tile_width, tile_height))
 
 sound_folder = 'sounds'
 soundtrack = pygame.mixer.music

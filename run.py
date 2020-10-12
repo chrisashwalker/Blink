@@ -4,7 +4,7 @@ import time
 import random
 
 from shared import window, window_width, window_height, framerate, text, BLACK, WHITE, soundtrack, tile_width, \
-    tile_height, track1, track2, track3, saves_surface, msg_surface, wall_surface, blink_surface  # ,siren
+    tile_height, track1, track2, track3, msg_surface, wall_surface, blink_surface  # ,siren
 from images import title_image, accident0_image, accident1_image, accident2_image, accident3_image, bedclosed_image, \
     bedopen_image, entrance_image, exit_image, wall1, item_image
 from saves import fetch_all_saves, save_game
@@ -66,16 +66,16 @@ if __name__ == "__main__":
                         load_screen = False
                 if not program_run:
                     break
-                window.blit(saves_surface, (160, 160))
+                window.blit(msg_surface, (160, 160))
                 ask_load = text.render('Load game? Press the number to load or just 0 to start a new game', True, WHITE)
                 ask_load.get_rect(topleft=(50, 20))
-                saves_surface.blit(ask_load, (50, 20))
+                msg_surface.blit(ask_load, (50, 20))
                 line = 1
                 for save in saves_list:
                     print_out = text.render(
                         str(line) + ': ' + save[0] + '     Progress: Level ' + str(save[1]), True, WHITE)
                     print_out.get_rect(topleft=(50, line * 50))
-                    saves_surface.blit(print_out, (50, line * 50))
+                    msg_surface.blit(print_out, (50, line * 50))
                     line += 1
                 pygame.display.flip()
 
@@ -109,11 +109,11 @@ if __name__ == "__main__":
             #  detecting where a new user already exists in the save database
             else:
                 show_intro = False         # TODO: Switch back to True to show the intro
-                window.blit(saves_surface, (160, 160))
-                saves_surface.fill(BLACK)
+                window.blit(msg_surface, (160, 160))
+                msg_surface.fill(BLACK)
                 ask_name = text.render('Type your name and press Enter', True, WHITE)
                 ask_name.get_rect(topleft=(50, 20))
-                saves_surface.blit(ask_name, (50, 20))
+                msg_surface.blit(ask_name, (50, 20))
                 unicode_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -127,10 +127,11 @@ if __name__ == "__main__":
                     username = username[:-1]
                 display_name = text.render(str.upper(username), True, WHITE)
                 display_name.get_rect(topleft=(50, 100))
-                saves_surface.blit(display_name, (50, 100))
+                msg_surface.blit(display_name, (50, 100))
                 pygame.display.flip()
                 if username and pressed_keys[pygame.K_RETURN]:
                     load_screen = False
+            
         if not program_run:
             break
 
@@ -476,7 +477,7 @@ if __name__ == "__main__":
             backpack_add_once = True
 
             for item_test in current_level.level_items_pos:
-                item_test_rect = pygame.Rect(item_test, (64, 64))
+                item_test_rect = pygame.Rect(item_test, (tile_width, tile_height))
                 if hero.rect.colliderect(item_test_rect) and item_test_rect not in found_items_rects:
                     item_wait = True
                     if player_inventory.item_capacity >= 6 and new_backpack in items_list:
