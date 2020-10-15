@@ -3,12 +3,11 @@ import pygame
 import random
 import time
 
-from shared import window_width, window_height, char_width, char_height, trans_surface
+from shared import window_width, window_height, char_width, char_height, trans_surface, graphics_folder
 
 
 class Character:
     def __init__(self, name, health, strength, speed):
-        # noinspection PyCallByClass,PyTypeChecker
         pygame.sprite.Sprite.__init__(self)
         self.name = name
         self.health = health
@@ -17,7 +16,7 @@ class Character:
 
         self.width = char_width
         self.height = char_height
-        self.image = os.path.join('graphics', (self.name + '.png'))
+        self.image = os.path.join(graphics_folder, (self.name + '.png'))
         self.surface = pygame.image.load(self.image).convert_alpha()
         self.rect = self.surface.get_rect()
 
@@ -57,11 +56,11 @@ def chase(opponent_x, opponent_y, player_x, player_y, walls, last_direction_x, l
 
     # Wander around the map, once every 2 seconds, avoiding walls and screen boundaries
     elif wander_change > last_wander + 2 and pygame.Rect(
-            (int(opponent_x + direction_x + 64), int(opponent_y + direction_y + 64)), (64, 64)).collidelist(walls) == \
+            (int(opponent_x + direction_x + char_width), int(opponent_y + direction_y + char_height)), (char_width, char_height)).collidelist(walls) == \
             -1 and pygame.Rect(
-            (int(opponent_x + direction_x), int(opponent_y + direction_y)), (64, 64)).collidelist(walls) == \
-            -1 and (opponent_x + direction_x + 64) <= window_width and \
-            opponent_y + direction_y + 64 <= window_height and (opponent_x + direction_x) >= 0 and \
+            (int(opponent_x + direction_x), int(opponent_y + direction_y)), (char_width, char_height)).collidelist(walls) == \
+            -1 and (opponent_x + direction_x + char_width) <= window_width and \
+            opponent_y + direction_y + char_height <= window_height and (opponent_x + direction_x) >= 0 and \
             opponent_y + direction_y >= 0:
         opponent_x += direction_x
         opponent_y += direction_y

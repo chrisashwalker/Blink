@@ -1,10 +1,11 @@
 import sqlite3
 
+saves_database = 'game_saves.db'
 
 def save_game(
         user, level_no, held_weapon, inventory_capacity, inventory_items, found_items_pos, level_type, level_layout):
     # Connect to the saves database
-    conn = sqlite3.connect('game_saves.db')
+    conn = sqlite3.connect(saves_database)
     c = conn.cursor()
 
     c.execute('''CREATE TABLE IF NOT EXISTS saves
@@ -39,7 +40,7 @@ def save_game(
 
 
 def fetch_all_saves():
-    conn = sqlite3.connect('game_saves.db')
+    conn = sqlite3.connect(saves_database)
     c = conn.cursor()
 
     c.execute('''SELECT user, level_no, held_weapon, inventory_capacity, 
